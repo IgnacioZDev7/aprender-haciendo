@@ -205,5 +205,5 @@ La historia HU-04 del primer sprint queda resuelta en dos piezas: la regla (`nec
 :::
 
 ::: {.callout-note title="Código QR"}
-![](img/qr_pendiente.png){width=15%} Código del paquete MiTienda v2 y plantilla de decisión de diseño
+![](img/qr-cap05.png){width=15%} Código del paquete MiTienda v2, separado en capas: <https://github.com/IgnacioZDev7/aprender-haciendo/tree/main/mitienda/v2/mitienda>
 :::

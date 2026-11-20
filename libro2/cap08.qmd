@@ -270,5 +270,5 @@ Anular una venta (HU-05) ahora es posible: se marca `anulada = 1` y se devuelve 
 :::
 
 ::: {.callout-note title="Código QR"}
-![](img/qr_pendiente.png){width=15%} Módulo `almacen.py` completo y script de migración desde CSV
+![](img/qr-cap08.png){width=15%} Módulo `almacen.py` completo: <https://github.com/IgnacioZDev7/aprender-haciendo/blob/main/mitienda/v2/mitienda/almacen.py>
 :::

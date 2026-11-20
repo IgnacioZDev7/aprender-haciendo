@@ -243,5 +243,5 @@ Al terminar este capítulo, MiTienda tiene:
 :::
 
 ::: {.callout-note title="Código QR"}
-![](img/qr_pendiente.png){width=15%} Repositorio de ejemplo de MiTienda v2
+![](img/qr-cap02.png){width=15%} Código de MiTienda v2 en el repositorio: <https://github.com/IgnacioZDev7/aprender-haciendo/tree/main/mitienda/v2>
 :::

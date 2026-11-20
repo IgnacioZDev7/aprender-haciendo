@@ -188,5 +188,5 @@ Solo falta lo más importante: comprobar que MiTienda v2 cumple lo que Doña Ros
 :::
 
 ::: {.callout-note title="Código QR"}
-![](img/qr_pendiente.png){width=15%} Flujos de GitHub Actions del repositorio del libro
+![](img/qr-cap09.png){width=15%} Flujos de GitHub Actions del repositorio del libro: <https://github.com/IgnacioZDev7/aprender-haciendo/tree/main/.github/workflows>
 :::

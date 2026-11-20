@@ -78,10 +78,10 @@ print("¡Todas las pruebas pasaron!")
 
 ## Códigos QR
 
-Al final de cada capítulo hay un código QR que lleva al código completo del capítulo en el repositorio del libro. Desde ahí puedes abrirlo en el navegador, sin instalar nada, y compararlo con tu solución.
+Al final de cada capítulo hay un código QR que lleva a la versión web del capítulo, donde puedes copiar el código con un clic, o al código de MiTienda en el repositorio del libro. Debajo de cada QR está también la dirección, por si no puedes escanearlo.
 
 ::: {.callout-note title="Código QR"}
-![](img/qr_pendiente.png){width=15%} QR al código del capítulo (se activará cuando el repositorio sea público)
+![](img/qr-cap00.png){width=15%} Versión web del libro: <https://ignaciozdev7.github.io/aprender-haciendo/libro1/>
 :::
 
 ## El proyecto MiTienda

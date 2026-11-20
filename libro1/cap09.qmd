@@ -267,5 +267,5 @@ Ya tienes todas las piezas: decisiones, bucles, funciones, estructuras de datos,
 :::
 
 ::: {.callout-note title="Código QR"}
-![](img/qr_pendiente.png){width=15%} Código, soluciones y programa del reto 9.3
+![](img/qr-cap09.png){width=15%} Versión web del capítulo 9, con el código del reto 9.3: <https://ignaciozdev7.github.io/aprender-haciendo/libro1/cap09.html>
 :::

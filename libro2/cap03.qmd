@@ -148,5 +148,5 @@ En la siguiente entrega, el equipo tomará las historias HU-02 y HU-04 (mucho va
 :::
 
 ::: {.callout-note title="Código QR"}
-![](img/qr_pendiente.png){width=15%} Plantilla de historia de usuario y tablero de prioridades
+![](img/qr-cap03.png){width=15%} Plantilla de historia de usuario (Anexo A.1): <https://ignaciozdev7.github.io/aprender-haciendo/libro2/anexo-a.html>
 :::

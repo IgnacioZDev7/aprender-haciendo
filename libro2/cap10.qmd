@@ -181,5 +181,5 @@ Las herramientas van a cambiar. Dentro de unos años quizás no uses Ruff, ni Gi
 :::
 
 ::: {.callout-note title="Código QR"}
-![](img/qr_pendiente.png){width=15%} Repositorio y versión publicada de MiTienda v2
+![](img/qr-cap10.png){width=15%} Repositorio de MiTienda v2: <https://github.com/IgnacioZDev7/aprender-haciendo/tree/main/mitienda/v2>
 :::

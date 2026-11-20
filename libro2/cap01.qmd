@@ -130,5 +130,5 @@ El primer paso hacia el producto no es escribir código, sino decidir cómo trab
 :::
 
 ::: {.callout-note title="Código QR"}
-![](img/qr_pendiente.png){width=15%} Plantilla de plan de entregas y reparto de roles
+![](img/qr-cap01.png){width=15%} Plantillas del Anexo A para el trabajo en equipo: <https://ignaciozdev7.github.io/aprender-haciendo/libro2/anexo-a.html>
 :::

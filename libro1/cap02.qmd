@@ -202,5 +202,5 @@ Observa que el precio se convierte con `float()` porque puede tener decimales, y
 :::
 
 ::: {.callout-note title="Código QR"}
-![](img/qr_pendiente.png){width=15%} Código y soluciones del capítulo 2
+![](img/qr-cap02.png){width=15%} Versión web del capítulo 2, con el código para copiar: <https://ignaciozdev7.github.io/aprender-haciendo/libro1/cap02.html>
 :::

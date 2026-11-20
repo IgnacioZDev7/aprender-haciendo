@@ -217,5 +217,5 @@ Observa que la opción del menú se compara con el texto `"1"` y no con el núme
 :::
 
 ::: {.callout-note title="Código QR"}
-![](img/qr_pendiente.png){width=15%} Código y soluciones del capítulo 4
+![](img/qr-cap04.png){width=15%} Versión web del capítulo 4, con el código para copiar: <https://ignaciozdev7.github.io/aprender-haciendo/libro1/cap04.html>
 :::

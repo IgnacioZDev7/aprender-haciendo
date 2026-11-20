@@ -179,5 +179,5 @@ La segunda casilla todavía no se puede cumplir: el equipo no sabe escribir prue
 :::
 
 ::: {.callout-note title="Código QR"}
-![](img/qr_pendiente.png){width=15%} Plantillas de tablero, Definición de Terminado y retrospectiva
+![](img/qr-cap04.png){width=15%} Plantillas de Definición de Terminado, planificación del sprint y retrospectiva (Anexo A): <https://ignaciozdev7.github.io/aprender-haciendo/libro2/anexo-a.html>
 :::

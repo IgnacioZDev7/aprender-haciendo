@@ -205,5 +205,5 @@ Al final de cada commit, las pruebas pasaban. La revisión de Carla fue rápida,
 :::
 
 ::: {.callout-note title="Código QR"}
-![](img/qr_pendiente.png){width=15%} Configuración de Ruff y ejemplo de refactorización paso a paso
+![](img/qr-cap06.png){width=15%} Configuración de Ruff de MiTienda v2 (`pyproject.toml`): <https://github.com/IgnacioZDev7/aprender-haciendo/blob/main/mitienda/v2/pyproject.toml>
 :::

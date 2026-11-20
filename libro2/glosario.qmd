@@ -1,0 +1,50 @@
+# Glosario {.unnumbered}
+
+Los términos de este glosario aparecen en el libro con el sentido que se indica. Entre paréntesis está el capítulo donde se explican.
+
+| Término | Definición |
+|---|---|
+| Acoplamiento | Cuánto depende un módulo de los detalles internos de otro. Conviene que sea bajo (cap. 5). |
+| Clave foránea | Columna que debe contener el identificador de una fila que existe en otra tabla; se declara con `REFERENCES` (cap. 8). |
+| Cobertura | Porcentaje de las líneas del código que se ejecutan durante las pruebas; se mide con `pytest-cov` (cap. 7). |
+| Cohesión | Qué tan relacionadas están las partes dentro de un módulo. Conviene que sea alta (cap. 5). |
+| Commit | Registro de un conjunto de cambios en el historial de Git, con su autor, su fecha y un mensaje (cap. 2). |
+| Conflicto | Situación en la que dos ramas cambian las mismas líneas y Git no puede decidir cuál conservar (cap. 2). |
+| Consulta parametrizada | Consulta SQL en la que los datos se pasan aparte, con `?`, en lugar de pegarlos en el texto; evita la inyección SQL (cap. 8). |
+| Criterio de aceptación | Condición verificable, con la forma «Dado… Cuando… Entonces…», que una historia debe cumplir para darse por aceptada (cap. 3). |
+| Definición de Terminado | Lista acordada por el equipo antes de empezar, que toda historia debe cumplir para contar como hecha (cap. 4). |
+| Diseño en capas | Organización del código en módulos con una responsabilidad cada uno; en MiTienda: reglas, almacén e interfaz (cap. 5). |
+| Etiqueta (*tag*) | Nombre fijo que Git asigna a un commit concreto, por ejemplo `v2.0.0` (cap. 9). |
+| Fixture | Función de pytest que prepara lo que una prueba necesita, como una base de datos de prueba (cap. 7). |
+| Flujo de trabajo (*workflow*) | Archivo YAML en `.github/workflows/` que indica a GitHub Actions cuándo ejecutarse y qué pasos seguir (cap. 9). |
+| Fusionar (*merge*) | Integrar los cambios de una rama en otra (cap. 2). |
+| GitHub Actions | Servicio de integración continua de GitHub (cap. 9). |
+| Historia de usuario | Descripción breve de una necesidad desde el punto de vista de quien usa el sistema: «Como… quiero… para…» (cap. 3). |
+| Incremento | Versión del producto que funciona y que se obtiene al final de cada sprint (cap. 4). |
+| Integración continua | Práctica de integrar cambios pequeños con frecuencia y comprobar cada uno automáticamente en un servidor (cap. 9). |
+| Inyección SQL | Ataque o error que ocurre cuando un dato se pega en el texto de una consulta y cambia su significado (cap. 8). |
+| INVEST | Sigla de seis criterios para evaluar una historia de usuario: independiente, negociable, valiosa, estimable, pequeña y verificable (cap. 3). |
+| Kanban | Método que organiza el trabajo en un tablero de columnas y limita cuántas tareas pueden estar en curso (cap. 4). |
+| Límite de trabajo en curso (WIP) | Número máximo de tarjetas permitidas en una columna del tablero (cap. 4). |
+| Linter | Programa que lee el código sin ejecutarlo y señala errores probables y malas prácticas; en este libro, `ruff check` (cap. 6). |
+| Lista del producto | Lista ordenada de todo lo que se quiere construir, mantenida por el *Product Owner* (cap. 4). |
+| `monkeypatch` | Herramienta de pytest para reemplazar temporalmente una función o una entrada, por ejemplo `input()`, durante una prueba (cap. 7). |
+| Product Owner | Responsabilidad de Scrum que ordena el trabajo según su valor y representa al cliente (cap. 4). |
+| Pull request (PR) | Solicitud para integrar los cambios de una rama, que el equipo revisa antes de fusionarla (cap. 2). |
+| `pyproject.toml` | Archivo que describe el paquete de Python: nombre, versión, dependencias, comandos y configuración de herramientas (cap. 9). |
+| Rama | Línea de desarrollo paralela que permite trabajar en un cambio sin tocar la versión que funciona (cap. 2). |
+| Rama protegida | Rama, normalmente `main`, en la que GitHub impide fusionar sin revisión o con pruebas en rojo (cap. 9). |
+| Refactorizar | Cambiar la estructura del código sin cambiar lo que hace (cap. 6). |
+| Requisito funcional | Lo que el sistema debe hacer (cap. 3). |
+| Requisito no funcional | Condición sobre cómo debe hacerlo: rendimiento, seguridad, facilidad de uso (cap. 3). |
+| Retrospectiva | Reunión al final de cada sprint en la que el equipo revisa cómo trabajó y decide qué mejorar (cap. 4). |
+| Ruff | Analizador y formateador de código Python usado en este libro (cap. 6). |
+| Scrum | Marco de trabajo ágil organizado en sprints, con responsabilidades, eventos y artefactos definidos (cap. 4). |
+| Scrum Master | Responsabilidad de Scrum que ayuda al equipo a usar el método y a quitar obstáculos (cap. 4). |
+| Sprint | Periodo de duración fija, de un mes o menos (en este libro, dos semanas), al final del cual el equipo entrega un incremento (cap. 4). |
+| SQLite | Base de datos que guarda todo en un solo archivo y viene incluida en Python (cap. 8). |
+| Transacción | Grupo de operaciones sobre la base de datos que se confirman todas juntas (*commit*) o se deshacen todas (*rollback*) (cap. 8). |
+| Versión publicada (*release*) | Etiqueta publicada en GitHub con notas que explican qué cambió (cap. 9). |
+| Versionado semántico | Numeración `MAYOR.MENOR.PARCHE` que indica si una versión rompe la compatibilidad, agrega funciones o corrige errores (cap. 9). |
+
+: Términos del Libro 2 {tbl-colwidths="[28,72]"}

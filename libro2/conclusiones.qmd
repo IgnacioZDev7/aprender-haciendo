@@ -1,0 +1,32 @@
+# Conclusiones y recomendaciones {.unnumbered}
+
+## Lo que este libro se propuso
+
+*Del programa al producto* partió de una brecha conocida: los estudiantes saben programar, pero rara vez practican lo que hace falta para construir software en equipo (Radermacher y Walia, 2013). El libro tomó un programa que ya funcionaba, MiTienda v1.0, y lo convirtió paso a paso en un producto: MiTienda v2.0.0.
+
+Cada capítulo agregó una práctica concreta, y cada práctica quedó en el código:
+
+- Historial y trabajo en paralelo con Git, ramas y pull requests.
+- Requisitos claros con historias de usuario y criterios de aceptación.
+- Organización del equipo con sprints, tablero, Definición de Terminado y retrospectivas.
+- Código mantenible con diseño en capas, estilo uniforme y refactorización.
+- Confianza en los cambios con 19 pruebas automáticas y 87 % de cobertura.
+- Datos confiables con SQLite, restricciones y transacciones.
+- Entregas seguras con integración continua, `main` protegida y versionado semántico.
+
+## Recomendaciones para estudiantes
+
+1. **Aplica una práctica a la vez.** No hace falta usar todo desde la primera semana: empieza por Git y pull requests, y suma una práctica por sprint.
+2. **Escribe la Definición de Terminado el primer día.** Es el acuerdo que más discusiones evita al final del semestre.
+3. **Trata la integración continua en rojo como la prioridad número uno.** Un aviso que todos ignoran ya no avisa de nada.
+4. **Declara el uso de IA.** Decir qué herramienta usaste, para qué y cómo verificaste el resultado es parte de la honestidad del trabajo.
+
+## Recomendaciones para docentes y ayudantes
+
+1. **Pidan el repositorio, no un archivo comprimido.** El historial de commits y los pull requests muestran quién hizo qué y cómo trabajó el equipo.
+2. **Evalúen con los criterios de aceptación.** La revisión final del capítulo 10 sirve como rúbrica: el producto cumple las historias o no.
+3. **Usen las plantillas del Anexo A.** Están pensadas para reutilizarse en proyectos de otras materias.
+
+## Para terminar
+
+Las herramientas de este libro van a cambiar. Las preguntas que enseña no: qué necesita realmente el usuario, cómo sabremos que algo está terminado, cómo nos enteramos si algo se rompe y qué mejoramos en el siguiente sprint.

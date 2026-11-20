@@ -1,6 +1,12 @@
 /* Colores de la serie Aprender Haciendo */
 :root { --navy:#1F3A5F; --teal:#2E7D6B; --naranja:#E07A2E; }
-h1, h2 { color: var(--navy); }
+/* Color propio del libro: #1E8C55 en modo claro, #3DDC84 en modo oscuro */
+:root { --libro:#1E8C55; --libro-claro:#3DDC84; }
+body.quarto-light { background:#FBFAF5; }
+body.quarto-light h1, body.quarto-light h2 { color: var(--libro); }
+body.quarto-dark h1, body.quarto-dark h2 { color: var(--libro-claro); }
+body.quarto-light main a { color: var(--libro); }
+body.quarto-dark main a { color: var(--libro-claro); }
 .callout.error { border-left-color:#C0392B !important; }
 .callout.consejo { border-left-color:#2F6DB5 !important; }
 .callout.reto-basico { border-left-color:#4F9D69 !important; }
@@ -13,3 +19,4 @@ pre.error { background:#FDF1F0; }
 .callout.objetivos { border-left-color:#1F3A5F !important; }
 .callout.resumen { border-left-color:#2E7D6B !important; }
 .callout.nota { border-left-color:#7A7A7A !important; }
+body.quarto-light #quarto-sidebar, body.quarto-light .sidebar { background:#FBFAF5; }

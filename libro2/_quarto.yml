@@ -28,17 +28,41 @@ book:
     - cap08.qmd
     - cap09.qmd
     - cap10.qmd
+    - conclusiones.qmd
     - referencias.qmd
   appendices:
     - anexo-a.qmd
+    - glosario.qmd
 
 lang: es
 filters:
   - ../comun/cajas.lua
+  - ../comun/aperturas.lua
+
+# Identidad visual del libro (PDF)
+color-acento: "FFB547"
+color-texto: "A8650A"
+volumen: "2"
+version: "Versión prefinal 0.9"
+universidad: "Universidad Privada Franz Tamayo (Unifranz)"
+materia: "Dirección y Liderazgo Creativo"
+# Escribe aquí el nombre del docente para que aparezca en la página de créditos
+docente: ""
+contraportada:
+  texto: "Saber programar no es lo mismo que construir software en equipo. Este libro toma un programa que ya funciona y lo convierte, paso a paso, en un producto que otras personas pueden usar, mantener y mejorar."
+  puntos:
+    - "Git, ramas y pull requests para trabajar en paralelo."
+    - "Historias de usuario, Scrum y Kanban para organizar al equipo."
+    - "Diseño en capas, código limpio y pruebas automáticas con pytest."
+    - "SQLite, integración continua y versiones publicadas."
+    - "Ocho plantillas listas para tus proyectos de otras materias."
+codigo-fondo: "../mitienda/v2/mitienda/almacen.py"
 
 format:
   html:
-    theme: cosmo
+    theme:
+      light: cosmo
+      dark: darkly
     css: estilos.css
     code-copy: true
     toc-title: "En este capítulo"

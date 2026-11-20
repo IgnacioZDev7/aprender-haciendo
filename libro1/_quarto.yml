@@ -28,6 +28,7 @@ book:
     - cap08.qmd
     - cap09.qmd
     - cap10.qmd
+    - conclusiones.qmd
     - referencias.qmd
   appendices:
     - anexo-a.qmd
@@ -37,10 +38,31 @@ book:
 lang: es
 filters:
   - ../comun/cajas.lua
+  - ../comun/aperturas.lua
+
+# Identidad visual del libro (PDF)
+color-acento: "3DDC84"
+color-texto: "1E8C55"
+volumen: "1"
+version: "Versión prefinal 0.9"
+universidad: "Universidad Privada Franz Tamayo (Unifranz)"
+materia: "Dirección y Liderazgo Creativo"
+# Escribe aquí el nombre del docente para que aparezca en la página de créditos
+docente: ""
+contraportada:
+  texto: "Muchos estudiantes entienden la clase de programación, pero se quedan en blanco frente a la pantalla vacía o frente al primer error en rojo. Este libro, escrito por un exayudante de cátedra, enseña a programar en Python como se aprende de verdad: resolviendo problemas reales, equivocándose y corrigiendo con método."
+  puntos:
+    - "Diez capítulos que empiezan con un problema y terminan con retos en tres niveles."
+    - "Los 20 errores más comunes del aula, con su causa y su solución."
+    - "Un proyecto que crece capítulo a capítulo: MiTienda, el sistema de ventas de la tienda de Doña Rosa."
+    - "Una sección «IA con criterio» en cada capítulo."
+codigo-fondo: "../mitienda/v1/mitienda.py"
 
 format:
   html:
-    theme: cosmo
+    theme:
+      light: cosmo
+      dark: darkly
     css: estilos.css
     code-copy: true
     toc-title: "En este capítulo"

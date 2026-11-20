@@ -1,0 +1,30 @@
+# Conclusiones y recomendaciones {.unnumbered}
+
+## Lo que este libro se propuso
+
+*Programar desde cero* partió de un problema concreto: muchos estudiantes entienden la clase de programación, pero se bloquean frente a la pantalla vacía o frente al primer mensaje de error. La respuesta del libro fue trabajar siempre de la misma manera: un problema real al inicio de cada capítulo, la solución paso a paso, los errores que más se repiten en el aula y retos en tres niveles.
+
+Al terminar los diez capítulos, quien los haya trabajado puede:
+
+- Descomponer un problema en entradas, proceso y salidas antes de escribir código.
+- Escribir programas en Python con variables, decisiones, bucles, funciones, listas y diccionarios.
+- Guardar y leer datos en archivos CSV y manejar los errores con `try`/`except`.
+- Leer un mensaje de error, encontrar su causa y corregirla con método.
+- Construir un programa completo y probado: MiTienda v1.0.
+
+## Recomendaciones para estudiantes
+
+1. **Escribe el código, no lo copies.** Los ejemplos están para escribirlos a mano y equivocarse. Copiar y pegar se siente más rápido, pero no deja nada.
+2. **Haz al menos un reto de cada nivel por capítulo.** El reto básico comprueba que entendiste y el de desafío es donde realmente se aprende.
+3. **Lee el error antes de pedir ayuda.** La última línea del mensaje casi siempre dice qué pasó, y el Anexo A reúne los veinte errores más comunes.
+4. **Usa la IA como tutor, no como autor.** Pídele que te explique y que te haga preguntas, y verifica siempre lo que responde ejecutando el código.
+
+## Recomendaciones para docentes y ayudantes
+
+1. **Usen MiTienda como hilo de la materia.** Cada capítulo deja un avance del proyecto que puede servir como práctica evaluada.
+2. **Aprovechen los recuadros de errores en clase.** Mostrar un error real y pedir al grupo que encuentre la causa funciona mejor que explicar la regla.
+3. **Evalúen el proceso, no solo el programa final.** Las pruebas de escritorio y las hojas de progreso muestran cómo razona cada estudiante.
+
+## El siguiente paso
+
+MiTienda v1.0 funciona, pero la escribió una sola persona. El Libro 2, *Del programa al producto*, parte de este mismo código para enseñar a construirlo en equipo: con Git, requisitos, métodos ágiles, pruebas automáticas, base de datos e integración continua.

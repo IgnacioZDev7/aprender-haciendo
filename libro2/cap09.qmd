@@ -1,0 +1,192 @@
+# Integración continua y publicación {#sec-cap9}
+
+::: {.callout-note .objetivos title="Al terminar este capítulo podrás"}
+- Configurar un flujo de GitHub Actions que pruebe el código en cada pull request.
+- Proteger la rama principal para que nada roto llegue a `main`.
+- Numerar versiones con versionado semántico y publicar una versión del producto.
+:::
+
+::: {.callout-note .problema title="Problema de inicio"}
+El equipo acordó ejecutar `pytest` antes de cada pull request. Durante dos semanas todos cumplieron. El jueves de la entrega, con apuro, Ana fusionó un cambio sin probarlo «porque era chiquito». El viernes, frente al docente, MiTienda no arrancó. ¿Cómo se convierte un acuerdo que depende de la memoria en algo que no puede olvidarse?
+:::
+
+## Integración continua
+
+**Integrar** es unir el trabajo de cada integrante en la rama principal. Si se hace pocas veces, por ejemplo solo antes de la entrega, cada integración trae muchos cambios juntos y sus problemas aparecen todos a la vez, como el «héroe de la última noche» del capítulo 1.
+
+La **integración continua** (CI, por *continuous integration*) propone lo contrario: integrar con frecuencia, en cambios pequeños, y que **un servidor** compruebe automáticamente cada cambio, ejecutando las pruebas y las revisiones de estilo. Si algo falla, el equipo se entera en minutos, cuando el cambio todavía está fresco y es pequeño.
+
+La clave está en «un servidor»: la comprobación no depende de que alguien se acuerde. Es la respuesta directa al problema de inicio.
+
+## GitHub Actions
+
+GitHub incluye un servicio de integración continua llamado **GitHub Actions**, gratuito para repositorios públicos. Se configura con archivos de texto en formato **YAML** dentro de la carpeta `.github/workflows/` del repositorio. Cada archivo describe un **flujo de trabajo** (*workflow*): cuándo se ejecuta y qué pasos sigue.
+
+Este es el flujo real que prueba MiTienda en el repositorio de este libro:
+
+```{.yaml}
+name: Pruebas de MiTienda
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12", "3.13"]
+    defaults:
+      run:
+        working-directory: mitienda/v2
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Instalar Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Instalar dependencias
+        run: pip install pytest pytest-cov ruff
+
+      - name: Revisar estilo con Ruff
+        run: |
+          ruff check .
+          ruff format --check .
+
+      - name: Ejecutar pruebas de MiTienda v2
+        run: pytest --cov=mitienda
+```
+
+Se lee de arriba hacia abajo:
+
+- **`on`**: cuándo se ejecuta. Aquí, en cada `push` a `main` y en cada pull request.
+- **`jobs`**: los trabajos. Hay uno, `pruebas`, que corre en una máquina virtual con Ubuntu (`runs-on`).
+- **`strategy.matrix`**: ejecuta el trabajo **dos veces**, con Python 3.12 y 3.13. Así sabes que MiTienda funciona en las dos versiones que pide su `pyproject.toml`.
+- **`steps`**: los pasos, en orden. Los que dicen `uses` usan acciones ya hechas por otros (descargar el código, instalar Python); los que dicen `run` ejecutan comandos, los mismos que escribes en tu terminal.
+
+En YAML, la **sangría es parte de la sintaxis**, como en Python, y se usan espacios, nunca tabulaciones. La mayoría de los errores al escribir un flujo son de sangría.
+
+Cuando abres un pull request, GitHub ejecuta el flujo y muestra el resultado en la página del PR: un círculo amarillo mientras corre, una marca verde si todo pasó y una cruz roja si algo falló. Un clic en «Details» abre el registro de cada paso, con la misma salida que verías en tu terminal.
+
+## Proteger la rama principal
+
+Que el flujo avise no impide fusionar un PR en rojo. Para eso, GitHub permite **proteger** la rama `main` (*Settings → Branches → Add branch protection rule*, o *Rulesets* en la interfaz más reciente). Las dos reglas que recomiendo para un equipo de estudiantes:
+
+| Regla | Qué impide |
+|---|---|
+| *Require a pull request before merging*, con al menos 1 aprobación | Hacer `push` directo a `main` y fusionar sin revisión. |
+| *Require status checks to pass*, seleccionando el trabajo `pruebas` | Fusionar si las pruebas o Ruff fallan. |
+
+: Reglas de protección de `main` recomendadas {tbl-colwidths="[50,50]"}
+
+Con estas dos reglas, la regla de trabajo del capítulo 2 («todo entra por pull request con una revisión») deja de ser un acuerdo y pasa a ser una restricción del repositorio. Ana no habría podido fusionar su cambio del jueves.
+
+::: {.callout-tip .consejo title="Consejo de ayudante"}
+Agrega al README la **insignia** (*badge*) del flujo: una pequeña imagen que muestra si las pruebas de `main` están en verde. En la página de Actions, abre el flujo, menú «…», *Create status badge*, y copia el texto en Markdown. Es lo primero que ve quien visita el repositorio, incluido tu docente.
+:::
+
+## Versiones con significado
+
+Cuando MiTienda se entrega a Doña Rosa, necesita un nombre que diga **qué** se entregó: «la versión del viernes» no sirve. El **versionado semántico** (Preston-Werner, s. f.) usa tres números, `MAYOR.MENOR.PARCHE`, con reglas precisas:
+
+| Se incrementa… | Cuando… | Ejemplo en MiTienda |
+|---|---|---|
+| PARCHE | Se corrige un error sin cambiar cómo se usa. | 2.0.0 → 2.0.1: el reporte sumaba mal las ventas anuladas. |
+| MENOR | Se agrega funcionalidad compatible con lo anterior. | 2.0.1 → 2.1.0: nueva opción para exportar el mes. |
+| MAYOR | Hay un cambio incompatible: lo anterior deja de funcionar igual. | 1.x → 2.0.0: los datos pasan de CSV a SQLite. |
+
+: Versionado semántico aplicado a MiTienda {tbl-colwidths="[16,40,44]"}
+
+El número de versión vive en un solo lugar del código, `mitienda/__init__.py` (`__version__ = "2.0.0"`), y la interfaz lo muestra en el título del menú.
+
+### Etiquetas y versiones publicadas
+
+En Git, una versión se marca con una **etiqueta** (*tag*) sobre el commit exacto que se entrega:
+
+```{.bash .terminal}
+git tag -a v2.0.0 -m "MiTienda 2.0.0: ventas en SQLite, stock y anulación"
+git push origin v2.0.0
+```
+
+En GitHub, la etiqueta se convierte en una **versión publicada** (*Releases → Draft a new release*), con notas que explican qué cambió. Doña Rosa, o tu docente, descarga ese código exacto, aunque el equipo siga trabajando en `main`.
+
+## Empaquetar: instalar el producto con un comando
+
+El archivo `pyproject.toml`, que ya usaste para configurar Ruff y pytest, también describe el **paquete**: nombre, versión, versión mínima de Python, dependencias y el comando que lo ejecuta.
+
+```{.toml}
+[project]
+name = "mitienda"
+version = "2.0.0"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.6"]
+
+[project.scripts]
+mitienda = "mitienda.cli:main"
+```
+
+Con esto, cualquier persona instala MiTienda desde la carpeta del proyecto con `pip install .` y la ejecuta escribiendo simplemente `mitienda` en la terminal. Quien quiera desarrollar instala también las herramientas con `pip install -e ".[dev]"`. Lista vacía de `dependencies` significa que MiTienda solo usa la biblioteca estándar de Python; si algún día usa una biblioteca externa, va declarada ahí, y nunca más «en mi computadora sí funciona».
+
+## Publicar la documentación
+
+La integración continua no sirve solo para probar. Este mismo libro se publica con GitHub Actions: un segundo flujo del repositorio genera la versión web y el PDF de los dos libros con Quarto y los publica en **GitHub Pages** cada vez que se fusiona un cambio en `main`. Los códigos QR de los capítulos apuntan a esa publicación. El archivo completo, `publicar-libros.yml`, está en el repositorio y sigue la misma estructura que acabas de leer.
+
+::: {.callout-warning .error title="Errores que vi como ayudante"}
+**1. Acostumbrarse al rojo.** El flujo falla por algo menor, nadie lo arregla «porque no es importante» y a la semana todos los PR están en rojo. Desde ese momento la integración continua ya no avisa de nada. *Regla:* `main` en rojo es la prioridad número uno del equipo, por encima de cualquier historia.
+
+**2. Contraseñas y claves en el repositorio.** Una clave de API o la contraseña de una base de datos escrita en el código y subida a GitHub. Aunque después se borre, queda en el historial, y hay programas que recorren GitHub buscando justamente eso. *Cómo evitarlo:* las claves van en variables de entorno o en los *secrets* del repositorio (*Settings → Secrets and variables*), nunca en el código. Si ya se subió una, considérala comprometida y cámbiala.
+
+**3. «En mi computadora funciona».** El proyecto usa una biblioteca que su autor instaló hace meses y nunca declaró. En la computadora del docente no arranca. *Cómo evitarlo:* la integración continua lo detecta sola, porque cada ejecución empieza en una máquina limpia. Si falla ahí, falta declarar algo en `pyproject.toml`.
+:::
+
+## Retos
+
+::: {.callout-note .reto-basico title="Reto 9.1 · Básico"}
+Agrega a tu repositorio un flujo de GitHub Actions que ejecute `pytest`. Abre un pull request con una prueba que falle a propósito, observa la cruz roja y abre el registro para encontrar el mensaje de error. Después corrígela y observa la marca verde.
+:::
+
+::: {.callout-note .reto-intermedio title="Reto 9.2 · Intermedio · en equipo"}
+Protejan la rama `main` del proyecto con las dos reglas de este capítulo. Comprueben que un integrante no puede hacer `push` directo a `main` y que un PR con pruebas en rojo no se puede fusionar. Agreguen la insignia del flujo al README.
+:::
+
+::: {.callout-note .reto-desafio title="Reto 9.3 · Desafío"}
+Publica la versión 1.0.0 de tu proyecto: etiqueta en Git, versión publicada en GitHub con notas de versión, y un `pyproject.toml` que permita instalarlo con `pip install .` y ejecutarlo con un comando. Pide a alguien de otro equipo que lo instale siguiendo solo tu README.
+:::
+
+::: {.callout-important .ia title="IA con criterio"}
+**Pídele que te explique un flujo línea por línea antes de usarlo.**
+
+*«Explícame qué hace cada línea de este archivo de GitHub Actions y qué pasaría si elimino el paso de Ruff o la matriz de versiones.»*
+
+**Verifica la respuesta:** los asistentes suelen proponer versiones de acciones (`@v3`, `@v4`) que pueden estar desactualizadas. Revisa la versión vigente en la página de cada acción en GitHub. Y nunca pegues en un chat de IA el contenido de tus *secrets*.
+:::
+
+## Avance de MiTienda v2: lista para entregar
+
+Al terminar este capítulo, cada pull request de MiTienda ejecuta automáticamente Ruff y las 19 pruebas con dos versiones de Python; `main` está protegida; el número de versión está en un solo lugar, y el paquete se instala con un comando. La Definición de Terminado incorpora una casilla nueva:
+
+```text
+[ ] La integración continua está en verde en el pull request.
+```
+
+Solo falta lo más importante: comprobar que MiTienda v2 cumple lo que Doña Rosa pidió. Eso es el capítulo 10.
+
+::: {.callout-note .resumen title="Resumen"}
+- La integración continua comprueba automáticamente cada cambio en un servidor, sin depender de la memoria de nadie.
+- GitHub Actions se configura con archivos YAML en `.github/workflows/`: cuándo (`on`), dónde (`runs-on`) y qué pasos (`steps`).
+- Proteger `main` convierte las reglas del equipo en restricciones del repositorio.
+- Versionado semántico: MAYOR para cambios incompatibles, MENOR para funcionalidad nueva, PARCHE para correcciones.
+- `pyproject.toml` declara el paquete, sus dependencias y su comando de ejecución.
+:::
+
+::: {.callout-note title="Código QR"}
+![](img/qr_pendiente.png){width=15%} Flujos de GitHub Actions del repositorio del libro
+:::

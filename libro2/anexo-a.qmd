@@ -1,0 +1,144 @@
+# Anexo A. Plantillas para proyectos en equipo {.unnumbered}
+
+Estas plantillas resumen las prácticas del libro en un formato que puedes copiar en los proyectos de cualquier materia. Todas están también en el repositorio del libro, como archivos de texto listos para usar.
+
+## A.1 Historia de usuario (capítulo 3)
+
+```text
+HU-__ · <título corto>
+Como <tipo de usuario>
+quiero <acción o funcionalidad>
+para <beneficio>
+
+Criterios de aceptación
+  Escenario 1: <nombre>
+    Dado <contexto>
+    Cuando <acción>
+    Entonces <resultado esperado>
+
+Valor: Alto / Medio / Bajo     Esfuerzo: Alto / Medio / Bajo
+Rama: hu-__-<nombre>           Responsable: ________
+```
+
+## A.2 Reglas de trabajo del repositorio (capítulo 2)
+
+```text
+1. Una rama por historia de usuario: hu-03-reporte-diario
+2. Commits pequeños, con verbo en presente.
+3. Todo cambio entra a main por pull request.
+4. Cada pull request tiene al menos una revisión.
+5. Los conflictos se resuelven hablando con quien hizo el otro cambio.
+6. main en rojo es la prioridad número uno del equipo.
+```
+
+## A.3 Pull request (capítulos 2, 5 y 6)
+
+Guárdala como `.github/pull_request_template.md` y GitHub la mostrará al abrir cada pull request.
+
+```text
+## Qué cambia
+<una o dos frases>
+
+## Historia de usuario
+Closes #__  (HU-__)
+
+## Decisión de diseño
+<en qué módulo va el cambio y por qué>
+
+## Cómo probarlo
+1. <paso>
+2. <paso>
+
+## Lista de verificación
+[ ] Las pruebas pasan (pytest) y agregué pruebas nuevas
+[ ] ruff check y ruff format sin avisos
+[ ] Cumple los criterios de aceptación
+[ ] No mezcla refactorización con funcionalidad nueva
+[ ] No incluye archivos de datos, .db ni contraseñas
+```
+
+## A.4 Definición de Terminado (capítulos 4, 7 y 9)
+
+```text
+Una historia está TERMINADA cuando:
+[ ] Cumple todos sus criterios de aceptación.
+[ ] Tiene pruebas automáticas de su caso normal y de su caso de error.
+[ ] Fue revisada en un pull request por otra persona.
+[ ] La integración continua está en verde.
+[ ] Está fusionada en main y main funciona.
+[ ] El README explica cómo usar lo nuevo, si corresponde.
+```
+
+## A.5 Planificación del sprint (capítulo 4)
+
+```text
+Sprint __ · del __/__ al __/__
+Objetivo del Sprint: <una frase: por qué este sprint vale la pena>
+
+Lista del sprint
+  HU-__  <título>                     (responsable)
+  HU-__  <título>                     (responsable)
+
+Riesgos y dependencias: <qué podría impedirnos terminar>
+Fecha de la revisión: __/__   Fecha de la retrospectiva: __/__
+```
+
+## A.6 Retrospectiva (capítulos 4 y 10)
+
+```text
+Retrospectiva del sprint __ · fecha __/__ · modera: ________
+
+¿Qué funcionó?
+-
+¿Qué no funcionó?
+-
+¿Qué probamos distinto?
+-
+(Solo en la retrospectiva final) ¿Qué me llevo a mi próximo equipo?
+-
+
+Mejora elegida para el próximo sprint: ________________
+Responsable: ________   ¿Cómo sabremos si funcionó? ________
+```
+
+## A.7 Acta de revisión final (capítulo 10)
+
+```text
+Proyecto: ________   Versión: v_._._   Fecha: __/__
+Asistentes: ________
+
+| Historia | Criterio de aceptación | ¿Cumple? | Observación del cliente |
+|----------|------------------------|----------|-------------------------|
+| HU-__    |                        |          |                         |
+
+Pendientes reconocidos y plan: ________
+Historias nuevas surgidas en la revisión: ________
+```
+
+## A.8 README de un proyecto (capítulos 9 y 10)
+
+```text
+# <Nombre del proyecto>
+![Pruebas](<insignia del flujo de GitHub Actions>)
+
+<Una frase: qué problema resuelve y para quién.>
+
+## Instalación
+    pip install .
+
+## Uso
+<comando para ejecutarlo y una captura o ejemplo de sesión>
+
+## Desarrollo
+    pip install -e ".[dev]"
+    pytest
+    ruff check .
+
+## Estado de las historias
+| Historia | Estado |
+|----------|--------|
+
+## Equipo y uso de IA
+<integrantes y roles; qué herramientas de IA se usaron, para qué
+y cómo se verificó lo que produjeron>
+```

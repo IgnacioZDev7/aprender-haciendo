@@ -1,0 +1,9 @@
+# Presentación {.unnumbered}
+
+*Programar desde cero* es el primer libro de la serie «Aprender Haciendo»: un manual práctico para estudiantes de los primeros semestres que aprenden a programar con Python. Cada capítulo empieza con un problema real, lo resuelve paso a paso, muestra los errores que más se repiten en el aula y termina con retos por niveles y un avance de MiTienda, el proyecto que crece a lo largo del libro.
+
+Esta edición está disponible en dos formatos generados a partir de los mismos archivos fuente: la **versión web**, que puedes leer en el navegador y donde puedes copiar el código con un clic, y la **versión PDF** en tamaño A5, para imprimir o leer sin conexión. El código de MiTienda, las pruebas y las soluciones de los retos están en el repositorio del libro.
+
+::: {.callout-note title="Estado de esta edición"}
+Versión 0.9, noviembre de 2026. Los diez capítulos están completos. Pendiente para la versión 1.0: validación de los capítulos con estudiantes, soluciones de todos los retos y la ilustración de portada.
+:::

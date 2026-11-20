@@ -1,0 +1,271 @@
+# Cuando algo sale mal: excepciones y depuración {#sec-cap9}
+
+::: {.callout-note .objetivos title="Al terminar este capítulo podrás"}
+- Leer un *traceback* completo y ubicar la línea que falló.
+- Atrapar errores previsibles con `try` y `except`.
+- Depurar un programa con un método, no a ciegas.
+:::
+
+::: {.callout-note .problema title="Problema de inicio"}
+Doña Rosa le pasó MiTienda a su sobrino para que la reemplace una tarde. Al primer cliente, el sobrino escribió «tres» en la cantidad. El programa mostró unas líneas en rojo y se cerró. Las ventas de la mañana estaban guardadas, pero el sobrino ya no quiere tocar «esa cosa». ¿De quién fue el error: del sobrino o del programa?
+:::
+
+## Tres tipos de errores
+
+No todos los errores son iguales, y cada tipo se busca de forma distinta:
+
+| Tipo | Cuándo aparece | Ejemplo | Cómo se detecta |
+|---|---|---|---|
+| De sintaxis | Antes de ejecutar | Falta un `:` o un paréntesis | Python no arranca y muestra `SyntaxError` |
+| De ejecución (excepción) | Mientras se ejecuta | `int("tres")`, dividir entre 0 | El programa se detiene con un *traceback* |
+| De lógica | Nunca «aparece» | El descuento se aplica mal | Solo con pruebas: el resultado está mal |
+
+: Tipos de errores en un programa {tbl-colwidths="[18,22,28,32]"}
+
+Los de sintaxis los viste desde el capítulo 2. Los de lógica son los más peligrosos, porque el programa funciona y da un resultado incorrecto con total tranquilidad: para eso sirven las pruebas de los capítulos 4 y 6. Este capítulo trata de los del medio, las **excepciones**, y de un método para encontrar cualquiera de los tres.
+
+## Leer un traceback
+
+Cuando ocurre una excepción, Python muestra un **traceback** («rastreo»): el camino de llamadas que llevó hasta el error. Este programa tiene dos funciones, y la segunda llamada falla:
+
+```{.python}
+def precio_con_descuento(precio, porcentaje):
+    return precio * (1 - porcentaje / 100)
+
+def registrar(precio_texto):
+    precio = float(precio_texto)
+    return precio_con_descuento(precio, 5)
+
+print(registrar("45"))
+print(registrar("cuarenta"))
+```
+
+```{.text .salida}
+42.75
+Traceback (most recent call last):
+  File "tienda.py", line 9, in <module>
+    print(registrar("cuarenta"))
+          ~~~~~~~~~^^^^^^^^^^^^
+  File "tienda.py", line 5, in registrar
+    precio = float(precio_texto)
+ValueError: could not convert string to float: 'cuarenta'
+```
+
+Un traceback se lee **de abajo hacia arriba**:
+
+1. **La última línea** dice qué pasó: el tipo de excepción (`ValueError`) y una descripción. Muchas veces basta con esto.
+2. **El bloque inmediatamente superior** dice dónde: archivo, número de línea (5), función (`registrar`) y el código de esa línea.
+3. **Los bloques de más arriba** dicen quién llamó a quién. Aquí, la línea 9 del programa principal llamó a `registrar`. Las marcas `~~~^^^` señalan la parte exacta de la línea involucrada.
+
+Observa que la primera llamada funcionó y mostró `42.75`. El error no está «en el programa»: está en ese dato, en esa línea.
+
+## Atrapar excepciones con try y except
+
+Algunos errores no son culpa del programador, sino previsibles: el usuario escribe texto donde va un número, falta un archivo. Para esos casos existe `try`/`except`: «intenta esto y, si ocurre tal excepción, haz esto otro».
+
+```python
+texto = input("Cantidad: ")
+try:
+    cantidad = int(texto)
+    print(f"Cantidad registrada: {cantidad}")
+except ValueError:
+    print(f"'{texto}' no es un número entero")
+```
+
+```{.text .salida}
+Cantidad: tres
+'tres' no es un número entero
+```
+
+Si el bloque `try` se ejecuta sin errores, el `except` se salta. Si ocurre un `ValueError`, Python abandona el `try` en esa línea y ejecuta el `except`, y el programa **sigue**, en lugar de detenerse.
+
+Combinado con el bucle de validación del capítulo 5, obtienes una función que no se rinde hasta recibir un dato correcto:
+
+```python
+def pedir_entero(mensaje, minimo=1):
+    """Pide un entero mayor o igual que minimo; insiste hasta obtenerlo."""
+    while True:
+        texto = input(mensaje)
+        try:
+            numero = int(texto)
+        except ValueError:
+            print("Escribe un número entero, por ejemplo 3")
+            continue
+        if numero >= minimo:
+            return numero
+        print(f"El número debe ser mayor o igual que {minimo}")
+
+cantidad = pedir_entero("Cantidad: ")
+print(f"Cantidad registrada: {cantidad}")
+```
+
+```{.text .salida}
+Cantidad: tres
+Escribe un número entero, por ejemplo 3
+Cantidad: -1
+El número debe ser mayor o igual que 1
+Cantidad: 3
+Cantidad registrada: 3
+```
+
+`continue` salta directamente a la siguiente vuelta del bucle. El `return` dentro del `while True` es la única salida: la función termina cuando el dato es válido.
+
+### Atrapar solo lo que esperas
+
+Puedes tener varios `except` para distintos tipos de excepción, y un `else` que se ejecuta solo si no hubo error:
+
+```python
+def leer_total(nombre):
+    try:
+        with open(nombre, encoding="utf-8") as f:
+            total = float(f.read())
+    except FileNotFoundError:
+        print(f"No existe {nombre}; se empieza en 0")
+        total = 0.0
+    except ValueError:
+        print(f"{nombre} tiene un contenido inválido")
+        total = 0.0
+    else:
+        print("Total leído correctamente")
+    return total
+
+print(leer_total("no_existe.txt"))
+```
+
+```{.text .salida}
+No existe no_existe.txt; se empieza en 0
+0.0
+```
+
+La regla es atrapar **solo las excepciones que sabes manejar**, por su nombre. Las que no esperabas deben seguir deteniendo el programa, porque te avisan de un error real.
+
+| Excepción | Causa típica |
+|---|---|
+| `ValueError` | Convertir un texto que no representa un número: `int("tres")`. |
+| `ZeroDivisionError` | Dividir entre cero. |
+| `FileNotFoundError` | Abrir para leer un archivo que no existe. |
+| `KeyError` | Buscar una clave que no está en un diccionario. |
+| `IndexError` | Usar una posición que no existe en una lista. |
+| `TypeError` | Operar con tipos incompatibles: `"5" + 3`. |
+
+: Excepciones más frecuentes en este libro {tbl-colwidths="[32,68]"}
+
+## Depurar con método
+
+**Depurar** (en inglés, *debugging*) es encontrar y corregir la causa de un error. El peor método, y el más común, es cambiar cosas al azar hasta que «ande». Este es mejor, y se parece al método científico:
+
+1. **Reproduce el error.** Anota exactamente qué datos lo provocan. Si no lo puedes repetir, no sabrás si lo arreglaste.
+2. **Lee el mensaje** completo, de abajo hacia arriba.
+3. **Formula una hipótesis**: «creo que `subtotal` vale 0 cuando llega a esta línea».
+4. **Compruébala.** Agrega un `print` temporal (`print("DEBUG subtotal =", subtotal)`), usa Python Tutor o el depurador del editor.
+5. **Corrige una sola cosa** y vuelve a probar con los mismos datos. Después, ejecuta también tus pruebas para verificar que no rompiste otra parte.
+
+### El depurador de VS Code
+
+VS Code incluye un depurador. Haz clic a la izquierda del número de una línea: aparece un punto rojo, llamado **punto de interrupción** (*breakpoint*). Luego ejecuta con **F5** (*Run → Start Debugging*). El programa se detendrá en esa línea y el panel de la izquierda mostrará el valor de cada variable. Con **F10** avanzas una línea; con **F11** entras dentro de la función que se llama en esa línea. Es la prueba de escritorio del capítulo 1, hecha por la computadora.
+
+::: {.callout-tip .consejo title="Consejo de ayudante"}
+Explícale tu código, línea por línea y en voz alta, a otra persona o a un objeto (los programadores lo llaman «depurar con el patito de goma»). Más de una vez vi a un estudiante encontrar su error a la mitad de la explicación, antes de que yo dijera nada. Al tener que decir qué hace cada línea, notas la que no hace lo que creías.
+:::
+
+::: {.callout-warning .error title="Errores que vi como ayudante"}
+**20. El `except` que se traga todo.**
+
+```{.python .error}
+try:
+    cantidad = int(input("Cantidad: "))
+    total = precio * cantidad
+except:
+    print("Error")
+```
+
+*Por qué es un problema:* un `except` sin tipo atrapa **cualquier** excepción, incluso las que provienen de errores tuyos. Aquí, si la variable `precio` no existe (un `NameError`, un error de programación), el programa dirá «Error» como si el usuario se hubiera equivocado. Pierdes el traceback, que era justamente la pista para encontrar el problema. *Solución:* nombra la excepción (`except ValueError:`), pon en el `try` solo la línea que puede fallar y escribe un mensaje que diga qué hacer.
+:::
+
+## Retos
+
+::: {.callout-note .reto-basico title="Reto 9.1 · Básico"}
+Escribe un programa que pida dos números y muestre su división. Si el usuario escribe algo que no es un número, o si el divisor es 0, muestra un mensaje claro en cada caso, sin que el programa se detenga.
+:::
+
+::: {.callout-note .reto-intermedio title="Reto 9.2 · Intermedio · autocorregible"}
+Escribe la función `convertir_precio(texto)` que acepte textos como `"12.5"`, `" 7 "` y `"3,5"` (con coma decimal, como se escribe en Bolivia) y devuelva el número. Si el texto no es un precio válido, debe devolver `None`.
+
+```python
+assert convertir_precio("3,5") == 3.5
+assert convertir_precio("abc") is None
+```
+:::
+
+::: {.callout-note .reto-desafio title="Reto 9.3 · Desafío"}
+Te damos un programa de 30 líneas con tres errores escondidos: uno de sintaxis, una excepción y uno de lógica (lo encontrarás con el código QR). Encuéntralos usando el método de cinco pasos y anota, para cada uno, tu hipótesis y cómo la comprobaste.
+:::
+
+::: {.callout-important .ia title="IA con criterio"}
+**Pega el traceback, pero tú haces el diagnóstico.**
+
+*«Tengo este traceback: [pégalo]. Antes de que me expliques, voy a decirte qué creo que pasó: [tu hipótesis]. ¿Mi lectura es correcta? ¿Qué parte del mensaje me perdí?»*
+
+**Verifica la respuesta:** escribir tu hipótesis primero es la clave; si le pides directamente la solución, practicas copiar, no depurar. Y si la IA propone envolver todo en un `try`/`except` genérico, ya sabes por el error 20 por qué no conviene.
+:::
+
+## Avance de MiTienda (v0.9)
+
+MiTienda ya no se cae por un dato mal escrito ni por un archivo que falta. Las dos funciones nuevas de esta versión:
+
+```python
+# MiTienda v0.9: entradas robustas y archivo opcional
+import csv
+
+ARCHIVO_VENTAS = "ventas.csv"
+
+def pedir_entero(mensaje, minimo=1):
+    while True:
+        try:
+            numero = int(input(mensaje))
+        except ValueError:
+            print("Escribe un número entero, por ejemplo 3")
+            continue
+        if numero >= minimo:
+            return numero
+        print(f"Debe ser mayor o igual que {minimo}")
+
+def total_vendido():
+    """Suma los importes guardados; si aún no hay archivo, devuelve 0."""
+    suma = 0
+    try:
+        with open(ARCHIVO_VENTAS, newline="", encoding="utf-8") as f:
+            for fila in csv.reader(f):
+                suma += float(fila[3])
+    except FileNotFoundError:
+        return 0
+    return suma
+
+print(f"Total vendido: {total_vendido():.2f}")
+cantidad = pedir_entero("Cantidad: ")
+print(f"Cantidad registrada: {cantidad}")
+```
+
+```{.text .salida}
+Total vendido: 0.00
+Cantidad: tres
+Escribe un número entero, por ejemplo 3
+Cantidad: 2
+Cantidad registrada: 2
+```
+
+Vuelve al problema de inicio: el sobrino escribió «tres» y la culpa fue del programa, que no estaba preparado para un error humano previsible. Un buen programa asume que las personas se equivocan y les ayuda a corregir.
+
+Ya tienes todas las piezas: decisiones, bucles, funciones, estructuras de datos, archivos y manejo de errores. En el capítulo 10 las juntas en MiTienda v1.0.
+
+::: {.callout-note .resumen title="Resumen"}
+- Hay errores de sintaxis, de ejecución (excepciones) y de lógica; las pruebas son la única defensa contra los últimos.
+- Un traceback se lee de abajo hacia arriba: qué pasó, dónde y quién llamó.
+- `try`/`except TipoDeError` maneja errores previsibles sin detener el programa.
+- Atrapa solo las excepciones que sabes manejar; nunca uses un `except` vacío.
+- Depura con método: reproduce, lee, formula una hipótesis, compruébala y corrige una cosa a la vez.
+:::
+
+::: {.callout-note title="Código QR"}
+![](img/qr_pendiente.png){width=15%} Código, soluciones y programa del reto 9.3
+:::

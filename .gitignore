@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Datos locales de MiTienda (cada uno tiene los suyos)
+*.db
+ventas.csv
+ventas_*.csv
+
+# Quarto
+_book/
+_freeze/
+.quarto/
+*.quarto_ipynb
+libro*/*.typ
+/sitio/
+
+# Editores y sistema
+.vscode/
+.DS_Store
+Thumbs.db

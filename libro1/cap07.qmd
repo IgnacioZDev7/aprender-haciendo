@@ -1,0 +1,270 @@
+# Guardar muchos datos: listas y diccionarios {#sec-cap7}
+
+::: {.callout-note .objetivos title="Al terminar este capítulo podrás"}
+- Crear, recorrer y modificar listas.
+- Usar diccionarios para buscar un valor por su clave.
+- Elegir entre una lista y un diccionario según el problema.
+:::
+
+::: {.callout-note .problema title="Problema de inicio"}
+Doña Rosa vende 40 productos. Cada vez que registra una venta, MiTienda le pide el precio del pan, aunque el pan cuesta lo mismo desde hace meses. ¿Vas a crear 40 variables, `precio_pan`, `precio_leche`, `precio_queso`…? ¿Y cómo recorres 40 variables con un `for`?
+:::
+
+## Listas: varios valores con un solo nombre
+
+Una **lista** guarda varios valores en orden, dentro de corchetes y separados por comas:
+
+```{python}
+productos = ["pan", "leche", "queso"]
+precios = [0.5, 6.0, 45.0]
+print(productos)
+print(len(productos))
+```
+
+Cada elemento tiene una **posición** o **índice**, que empieza en **0**, no en 1. Para leer un elemento, escribe el índice entre corchetes. Los índices negativos cuentan desde el final:
+
+```{python}
+productos = ["pan", "leche", "queso"]
+print(productos[0])    # el primero
+print(productos[2])    # el tercero
+print(productos[-1])   # el último
+```
+
+| Índice | 0 | 1 | 2 |
+|---|---|---|---|
+| Elemento | `"pan"` | `"leche"` | `"queso"` |
+| Índice negativo | −3 | −2 | −1 |
+
+: Índices de la lista `productos` {tbl-colwidths="[28,24,24,24]"}
+
+### Modificar una lista
+
+A diferencia de los textos, las listas se pueden cambiar después de creadas:
+
+```{python}
+carrito = ["pan", "leche"]
+carrito.append("queso")     # agrega al final
+carrito[0] = "pan integral" # reemplaza un elemento
+carrito.remove("leche")     # quita la primera aparición
+print(carrito)
+print("queso" in carrito)   # ¿está en la lista?
+```
+
+Las operaciones que más vas a usar:
+
+| Operación | Qué hace |
+|---|---|
+| `lista.append(x)` | Agrega `x` al final. |
+| `lista.remove(x)` | Quita la primera aparición de `x` (error si no está). |
+| `lista.pop()` | Quita y devuelve el último elemento. |
+| `x in lista` | `True` si `x` está en la lista. |
+| `len(lista)` | Cantidad de elementos. |
+| `sum(lista)`, `max(lista)`, `min(lista)` | Suma, mayor y menor (si son números). |
+| `sorted(lista)` | Devuelve una copia ordenada. |
+
+: Operaciones frecuentes con listas {tbl-colwidths="[38,62]"}
+
+### Recorrer una lista con for
+
+Aquí es donde el `for` del capítulo 5 muestra todo su valor: recorre los elementos de la lista, uno por uno, sin que te preocupes por los índices.
+
+```{python}
+ventas = [12.0, 133.0, 7.5, 45.0]
+total = 0
+for venta in ventas:
+    total += venta
+print(f"Total: {total:.2f}")
+print(f"Con sum(): {sum(ventas):.2f}")
+print(f"Venta más alta: {max(ventas):.2f}")
+```
+
+El acumulador de siempre y la función `sum()` dan el mismo resultado. Conviene que sepas escribir el bucle, porque no todo problema tiene una función ya hecha.
+
+## Diccionarios: buscar por nombre
+
+Con dos listas paralelas, `productos` y `precios`, para saber el precio del queso tienes que buscar su posición en una lista y leer la misma posición en la otra. Funciona, pero es frágil: si borras un elemento de una sola lista, todos los precios quedan desplazados.
+
+Un **diccionario** resuelve esto. Guarda pares **clave: valor**, entre llaves, y te deja buscar un valor directamente por su clave, como buscas una palabra en un diccionario de papel:
+
+```{python}
+catalogo = {"pan": 0.5, "leche": 6.0, "queso": 45.0}
+print(catalogo["queso"])
+catalogo["yogur"] = 8.0      # agrega una clave nueva
+catalogo["pan"] = 0.6        # cambia un valor existente
+print(catalogo)
+print(len(catalogo))
+```
+
+Las claves no se repiten: si asignas a una clave que ya existe, reemplazas su valor. Para saber si una clave existe, usa `in`; para leer un valor sin arriesgarte a un error, usa `get()`, que devuelve `None` (o el valor que indiques) si la clave no está:
+
+```{python}
+catalogo = {"pan": 0.5, "leche": 6.0, "queso": 45.0}
+print("arroz" in catalogo)
+print(catalogo.get("arroz"))
+print(catalogo.get("arroz", 0))
+```
+
+### Recorrer un diccionario
+
+Un `for` sobre un diccionario recorre sus claves. Con `.items()` obtienes la clave y el valor a la vez:
+
+```{python}
+catalogo = {"pan": 0.5, "leche": 6.0, "queso": 45.0}
+for producto, precio in catalogo.items():
+    print(f"{producto:<8}{precio:>7.2f}")
+```
+
+El `:<8` y el `:>7.2f` dentro de la f-string alinean el texto a la izquierda en 8 espacios y el número a la derecha en 7. Así se arma una tabla prolija en la consola.
+
+## ¿Lista o diccionario?
+
+| Usa una lista cuando… | Usa un diccionario cuando… |
+|---|---|
+| El **orden** importa (una fila de clientes, el historial de ventas). | Buscas por un **nombre** o código (el precio de un producto). |
+| Accedes por posición o recorres todo. | Cada dato tiene una etiqueta única. |
+| Puede haber valores repetidos. | Las claves no se repiten. |
+
+: Criterios para elegir la estructura {tbl-colwidths="[50,50]"}
+
+Y se pueden combinar. Una venta puede ser una **lista de diccionarios**, donde cada diccionario describe una línea del ticket:
+
+```{python}
+venta = [
+    {"producto": "pan", "cantidad": 10, "importe": 5.0},
+    {"producto": "queso", "cantidad": 3, "importe": 135.0},
+]
+for linea in venta:
+    print(f"{linea['cantidad']} x {linea['producto']}: {linea['importe']:.2f}")
+print(f"Subtotal: {sum(linea['importe'] for linea in venta):.2f}")
+```
+
+La última línea usa una forma compacta de recorrer la lista dentro de `sum()`. Si te cuesta leerla, escríbela con un bucle y un acumulador: es exactamente lo mismo.
+
+::: {.callout-warning .error title="Errores que vi como ayudante"}
+**18. Pedir un elemento que no existe.** Hay dos versiones de este error:
+
+```{.python .error}
+productos = ["pan", "leche", "queso"]
+print(productos[3])
+```
+
+```{.text .salida}
+IndexError: list index out of range
+```
+
+```{.python .error}
+catalogo = {"pan": 0.5, "leche": 6.0}
+print(catalogo["Pan"])
+```
+
+```{.text .salida}
+KeyError: 'Pan'
+```
+
+*Por qué pasa:* en el primer caso, una lista de 3 elementos tiene índices 0, 1 y 2; el 3 no existe. En el segundo, las claves distinguen mayúsculas: `"Pan"` no es `"pan"`. *Solución:* recorre con `for` en lugar de usar índices a mano; normaliza el texto con `.lower()` y comprueba con `in` o usa `get()` antes de leer una clave que viene del usuario.
+:::
+
+::: {.callout-tip .consejo title="Consejo de ayudante"}
+Cuando no entiendas qué hay dentro de una estructura, imprímela entera: `print(catalogo)`. Ver los datos reales resuelve la mitad de las dudas sobre listas y diccionarios. Para estructuras grandes, `from pprint import pprint` y `pprint(datos)` las muestran ordenadas, una por línea.
+:::
+
+## Retos
+
+::: {.callout-note .reto-basico title="Reto 7.1 · Básico · autocorregible"}
+Escribe la función `promedio(numeros)` que reciba una lista de números y devuelva su promedio redondeado a 2 decimales. Si la lista está vacía, debe devolver 0.
+
+```python
+assert promedio([10, 20, 30]) == 20
+assert promedio([]) == 0
+```
+:::
+
+::: {.callout-note .reto-intermedio title="Reto 7.2 · Intermedio · autocorregible"}
+Escribe la función `contar_palabras(texto)` que devuelva un diccionario con cuántas veces aparece cada palabra. Por ejemplo, `contar_palabras("pan leche pan")` debe devolver `{"pan": 2, "leche": 1}`. Pista: `texto.split()` separa un texto en una lista de palabras.
+:::
+
+::: {.callout-note .reto-desafio title="Reto 7.3 · Desafío"}
+Doña Rosa tiene el stock de cada producto en un diccionario: `stock = {"pan": 120, "leche": 15, "queso": 4}`. Escribe un programa que registre ventas descontando del stock, no permita vender más de lo que hay y, al final, muestre los productos con menos de 10 unidades para reponer.
+:::
+
+::: {.callout-important .ia title="IA con criterio"}
+**Pídele ejemplos de datos, no soluciones.** Para practicar con estructuras, necesitas datos con los que probar:
+
+*«Genera un diccionario de Python con 15 productos de una tienda de barrio en Bolivia y precios realistas en bolivianos. Solo los datos, sin código adicional.»*
+
+**Verifica la respuesta:** revisa que los precios tengan sentido para tu ciudad; los modelos de lenguaje pueden inventar precios con total seguridad. Los datos que te dé son material de práctica, no información confiable.
+:::
+
+## Avance de MiTienda (v0.7)
+
+MiTienda ahora tiene un catálogo. El cajero solo escribe el nombre del producto y la cantidad; el precio lo pone el programa. Además, cada venta se guarda en una lista para el reporte del día. Las funciones de la versión 0.6 que no cambian se omiten para ahorrar espacio:
+
+```python
+# MiTienda v0.7: catálogo de productos con un diccionario
+catalogo = {"pan": 0.5, "leche": 6.0, "queso": 45.0, "arroz": 9.5}
+ventas_del_dia = []   # lista con el total de cada venta
+
+def calcular_descuento(subtotal):
+    if subtotal > 200:
+        return 10
+    elif subtotal > 100:
+        return 5
+    return 0
+
+def mostrar_catalogo():
+    print("--- Catálogo ---")
+    for producto, precio in catalogo.items():
+        print(f"{producto:<8}{precio:>7.2f}")
+
+def registrar_venta():
+    subtotal = 0
+    nombre = input("Producto (vacío para cerrar): ").strip().lower()
+    while nombre != "":
+        if nombre in catalogo:
+            cantidad = int(input("Cantidad: "))
+            subtotal += catalogo[nombre] * cantidad
+        else:
+            print(f"'{nombre}' no está en el catálogo")
+        nombre = input("Producto (vacío para cerrar): ").strip().lower()
+    porcentaje = calcular_descuento(subtotal)
+    total = round(subtotal * (1 - porcentaje / 100), 2)
+    print(f"Total a pagar: {total:.2f} (descuento {porcentaje} %)")
+    return total
+
+mostrar_catalogo()
+ventas_del_dia.append(registrar_venta())
+print(f"Ventas registradas: {ventas_del_dia}")
+```
+
+```{.text .salida}
+--- Catálogo ---
+pan        0.50
+leche      6.00
+queso     45.00
+arroz      9.50
+Producto (vacío para cerrar): Queso
+Cantidad: 3
+Producto (vacío para cerrar): fideo
+'fideo' no está en el catálogo
+Producto (vacío para cerrar): pan
+Cantidad: 10
+Producto (vacío para cerrar):
+Total a pagar: 133.00 (descuento 5 %)
+Ventas registradas: [133.0]
+```
+
+Observa el `.strip().lower()`: quita espacios sobrantes y pasa el texto a minúsculas, de modo que `Queso` y `queso` encuentran la misma clave. Es la solución al error 18 aplicada al proyecto.
+
+Queda un problema serio: cuando cierras el programa, la lista `ventas_del_dia` desaparece. Si se corta la luz, Doña Rosa pierde todas las ventas. En el capítulo 8 las vas a guardar en un archivo.
+
+::: {.callout-note .resumen title="Resumen"}
+- Una lista guarda valores en orden; los índices empiezan en 0 y `-1` es el último.
+- `append`, `remove`, `in`, `len`, `sum`, `max` y `sorted` resuelven la mayoría de las tareas con listas.
+- Un diccionario guarda pares clave: valor y busca por clave; las claves no se repiten.
+- `get()` y `in` evitan el `KeyError` cuando la clave viene del usuario.
+- Elige lista si importa el orden y diccionario si buscas por nombre; se pueden combinar.
+:::
+
+::: {.callout-note title="Código QR"}
+![](img/qr_pendiente.png){width=15%} Código y soluciones del capítulo 7
+:::

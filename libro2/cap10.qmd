@@ -1,0 +1,185 @@
+# Proyecto final: MiTienda v2 {#sec-cap10}
+
+::: {.callout-note .objetivos title="Al terminar este capítulo podrás"}
+- Comprobar que un producto cumple sus historias de usuario con los criterios de aceptación.
+- Preparar y conducir la revisión final con el cliente.
+- Entregar un proyecto con su documentación, su versión publicada y una retrospectiva.
+:::
+
+::: {.callout-note .problema title="Problema de inicio"}
+Es la última semana. Las pruebas están en verde, el código está limpio y la versión 2.0.0 tiene su etiqueta. Carla pregunta: «¿Ya terminamos?». Luis responde: «El código sí». ¿Es lo mismo terminar el código que terminar el producto?
+:::
+
+## De la versión 1 a la versión 2
+
+Antes de mirar el código, mira lo que cambió para Doña Rosa y para el equipo. Esta tabla responde la pregunta del capítulo 0: qué le faltaba a MiTienda v1 para ser un producto.
+
+| Aspecto | MiTienda v1 (Libro 1) | MiTienda v2 (Libro 2) | Cap. |
+|---|---|---|---|
+| Historial | Una carpeta con archivos | Repositorio Git con ramas y pull requests | 2 |
+| Requisitos | En la cabeza del autor | Seis historias con criterios de aceptación | 3 |
+| Organización | Una persona | Equipo con sprints, tablero y retrospectivas | 4 |
+| Estructura | Un archivo de 150 líneas | Paquete en tres capas | 5 |
+| Estilo | El de su autor | Ruff, sin avisos | 6 |
+| Pruebas | `assert` en un archivo | 19 pruebas con pytest, 87 % de cobertura | 7 |
+| Datos | Un CSV de líneas sueltas | SQLite con ventas, líneas, restricciones y transacciones | 8 |
+| Entrega | Copiar la carpeta | CI, `main` protegida, versión 2.0.0, `pip install .` | 9 |
+
+: Qué cambió de MiTienda v1 a v2 {tbl-colwidths="[16,30,42,12]"}
+
+Observa la última columna: cada fila es un capítulo. El producto no se construyó al final, sino de a poco, en cada sprint.
+
+## El último sprint
+
+El equipo dedicó el último sprint a cerrar las historias que faltaban. Este es el estado del tablero al terminar:
+
+| Historia | Estado | Dónde está en el código |
+|---|---|---|
+| HU-01 Venta de varios productos | Terminada | `almacen.registrar_venta()` |
+| HU-02 Total vendido en el día | Terminada (sprint 1) | `almacen.total_del_dia()` |
+| HU-03 Editar catálogo | Terminada a medias | `almacen.agregar_producto()`, `actualizar_precio()` sin opción de menú |
+| HU-04 Productos con pocas unidades | Terminada (sprint 1) | `reglas.necesita_reposicion()`, `almacen.productos_para_reponer()` |
+| HU-05 Anular una venta | Terminada | `almacen.anular_venta()` |
+| HU-06 Exportar ventas del mes | Terminada | `almacen.exportar_mes()` |
+
+: Estado de las historias al cierre de MiTienda v2 {tbl-colwidths="[32,22,46]"}
+
+La HU-03 está a medias, y la tabla lo dice. Las funciones existen y tienen pruebas, pero Doña Rosa todavía no puede cambiar un precio desde el menú. Según la Definición de Terminado, **no está terminada**. Lo honesto es presentarla así en la revisión, no esconderla: es exactamente el reto 10.1 de este capítulo.
+
+## Comprobar los criterios de aceptación
+
+Las pruebas automáticas comprueban funciones. La revisión final comprueba algo distinto: que el producto hace lo que Doña Rosa pidió, **usándolo como lo usaría ella**. Para eso se recorren los criterios de aceptación de cada historia, uno por uno, con el programa instalado. Esta es una sesión real con MiTienda v2, que recorre los criterios principales de las historias HU-01, HU-02, HU-04 y HU-05:
+
+```{.text .salida}
+=== MiTienda v2.0.0 ===
+1. Registrar venta
+2. Ver catálogo y stock
+3. Reporte del día
+4. Anular venta
+5. Exportar ventas del mes
+0. Salir
+Elige una opción: 1
+Producto (vacío para cerrar): queso
+Cantidad: 3
+Producto (vacío para cerrar): pan
+Cantidad: diez
+Escribe un número entero, por ejemplo 3
+Cantidad: 10
+Producto (vacío para cerrar):
+Venta N.º 1 registrada. Total a pagar: 133.00
+...
+Elige una opción: 1
+Producto (vacío para cerrar): queso
+Cantidad: 9
+Producto (vacío para cerrar):
+No se registró la venta: Solo hay 5 unidades de 'queso'
+...
+Elige una opción: 3
+Total vendido hoy: 133.00
+Reponer: queso (5)
+...
+Elige una opción: 4
+N.º de venta a anular: 1
+Venta 1 anulada; el stock se devolvió
+...
+Elige una opción: 3
+Total vendido hoy: 0.00
+Reponer: queso (8)
+```
+
+Los puntos suspensivos reemplazan el menú, que se repite igual. Cada bloque comprueba un criterio:
+
+| Criterio de aceptación | Resultado |
+|---|---|
+| HU-01: Dado un catálogo con stock, cuando registro varios productos, entonces se cobra el total con el descuento que corresponde. | Cumple: 140 → 133 (5 %) |
+| HU-01: Cuando pido más unidades que el stock, entonces la venta no se registra y se explica por qué. | Cumple |
+| HU-02: Cuando pido el reporte, entonces veo el total vendido hoy. | Cumple |
+| HU-04: Cuando un producto tiene menos de 10 unidades, entonces aparece en la lista para reponer. | Cumple: queso (5) |
+| HU-05: Cuando anulo una venta, entonces no cuenta en el total y su stock vuelve. | Cumple: total 0.00, queso (8) |
+
+: Revisión de criterios de aceptación con el producto instalado {tbl-colwidths="[72,28]"}
+
+Esta tabla, con una columna más para las observaciones del cliente, es el acta de la revisión final.
+
+## La revisión con el cliente
+
+La revisión del sprint (capítulo 4) se vuelve, al final del proyecto, la presentación del producto. Algunas pautas que vi funcionar:
+
+- **Muestra el producto funcionando, no diapositivas sobre el producto.** Diez minutos de uso real convencen más que veinte de explicación.
+- **Prepara los datos.** Una base de demostración con productos y ventas creíbles, preparada antes. Nada de «esperen que cargo unos productos».
+- **Sigue las historias, no los menús.** «Doña Rosa quiere saber qué reponer: así lo ve» en lugar de «la opción 3 hace tal cosa».
+- **Di lo que falta.** La HU-03 a medias, con su plan para terminarla. Un cliente confía más en un equipo que reconoce un pendiente que en uno al que se lo descubren.
+- **Escucha y anota.** La revisión existe para recibir opiniones. Lo que diga el cliente alimenta la lista del producto de la siguiente versión.
+
+## La retrospectiva final
+
+Al cerrar el proyecto, la retrospectiva mira todo el semestre, no solo el último sprint. Además de las tres preguntas del capítulo 4, agrega una cuarta: **¿qué me llevo a mi próximo equipo?** La respuesta de cada integrante, en una o dos frases, es probablemente lo más valioso que deja el proyecto, más que el código.
+
+## La entrega
+
+El producto se entrega con todo lo que alguien necesita para usarlo y continuarlo sin preguntarle nada al equipo:
+
+| ✓ | Elemento de la entrega |
+|---|---|
+| ☐ | Versión etiquetada (`v2.0.0`) y publicada en GitHub con notas de versión. |
+| ☐ | README con: qué hace, cómo instalarlo, cómo usarlo, cómo ejecutar las pruebas y estado de cada historia. |
+| ☐ | Integración continua en verde sobre el commit etiquetado. |
+| ☐ | Lista del producto actualizada, con lo pendiente para la próxima versión. |
+| ☐ | Acta de la revisión final con los criterios de aceptación. |
+| ☐ | Retrospectiva final del equipo. |
+| ☐ | Declaración de uso de IA: qué herramienta, para qué y cómo se verificó. |
+
+: Lista de verificación de la entrega del producto {tbl-colwidths="[8,92]"}
+
+El README es la puerta de entrada del producto. El de MiTienda v2 está en el repositorio y sigue la plantilla del Anexo A.
+
+::: {.callout-warning .error title="Errores que vi como ayudante"}
+**1. La demostración sin ensayar.** El día de la presentación, la base de datos está vacía, falta una biblioteca en la computadora del aula o el proyector no muestra la terminal. *Cómo evitarlo:* ensayen la demostración completa el día anterior, **en otra computadora**, instalando desde la versión publicada.
+
+**2. El README de la primera semana.** Dice «Proyecto de MiTienda. En construcción» y explica cómo ejecutar un archivo que ya no existe. *Cómo evitarlo:* incluyan «el README explica lo nuevo» en la Definición de Terminado, como en el capítulo 4.
+
+**3. Entregar `main` en lugar de una versión.** El docente descarga el repositorio una semana después y encuentra cambios hechos después de la entrega, o una rama a medio fusionar. *Cómo evitarlo:* entreguen siempre el enlace a la versión publicada, que apunta a un commit fijo.
+:::
+
+::: {.callout-tip .consejo title="Consejo de ayudante"}
+Fija el repositorio del proyecto en tu perfil de GitHub (*Customize your pins*) y agrégale una descripción y una captura en el README. Un proyecto en equipo con pruebas, integración continua y versiones publicadas dice más de ti, en una entrevista de prácticas, que cualquier certificado.
+:::
+
+## Retos del proyecto
+
+::: {.callout-note .reto-basico title="Reto 10.1 · Básico"}
+Termina la HU-03: agrega al menú las opciones «Agregar producto» y «Cambiar precio», que usen las funciones de `almacen.py` que ya existen. Agrega una prueba de interfaz con `monkeypatch` para cada opción y publica la versión que corresponda según el versionado semántico. ¿Es 2.0.1, 2.1.0 o 3.0.0?
+:::
+
+::: {.callout-note .reto-intermedio title="Reto 10.2 · Intermedio · en equipo"}
+Hagan la revisión final de su propio proyecto con la tabla de criterios de aceptación de este capítulo, con alguien externo al equipo en el papel de cliente. Anoten sus observaciones y conviértanlas en historias nuevas para la lista del producto.
+:::
+
+::: {.callout-note .reto-desafio title="Reto 10.3 · Desafío · en equipo"}
+Diseñen la versión 3 de MiTienda: una interfaz web en lugar de la consola. Escriban las historias, decidan qué capa cambia y cuál no (capítulo 5) y estimen cuántos sprints llevaría. No hace falta programarla: la entrega es el plan.
+:::
+
+::: {.callout-important .ia title="IA con criterio"}
+**Que la IA haga de cliente exigente.** Antes de la revisión final:
+
+*«Actúa como la dueña de una tienda de barrio que va a usar este sistema. Lee estas historias de usuario y este README, y hazme las cinco preguntas más difíciles que me harías en la presentación.»*
+
+**Verifica la respuesta:** prepara tus respuestas mostrando el producto, no con palabras. Y en la declaración de uso de IA de la entrega, incluye también este uso: practicar la presentación con un asistente es legítimo, y decirlo es parte de la honestidad del trabajo.
+:::
+
+## Lo que sigue
+
+Llegaste al final de la serie. En el Libro 1 aprendiste a resolver un problema con un programa. En este aprendiste a construir, junto con otras personas, un producto que alguien puede usar, entender y mejorar: con historial, requisitos, método, diseño, pruebas, datos confiables e integración continua.
+
+Las herramientas van a cambiar. Dentro de unos años quizás no uses Ruff, ni GitHub Actions, ni siquiera Python. Lo que queda son las preguntas que este libro te enseñó a hacer: ¿qué necesita realmente el usuario?, ¿cómo sabremos que está terminado?, ¿cómo nos enteramos si algo se rompe?, ¿qué mejoramos en el próximo sprint? Esas preguntas sirven en cualquier equipo y con cualquier tecnología.
+
+::: {.callout-note .resumen title="Resumen"}
+- Terminar el código no es terminar el producto: falta comprobarlo con el cliente y entregarlo documentado.
+- La revisión final recorre los criterios de aceptación con el producto instalado y deja un acta.
+- Lo que falta se dice, con un plan; no se esconde.
+- La entrega es una versión publicada con README, CI en verde, lista del producto y retrospectiva.
+:::
+
+::: {.callout-note title="Código QR"}
+![](img/qr_pendiente.png){width=15%} Repositorio y versión publicada de MiTienda v2
+:::

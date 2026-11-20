@@ -1,0 +1,274 @@
+# Datos que no se pierden: SQLite {#sec-cap8}
+
+::: {.callout-note .objetivos title="Al terminar este capítulo podrás"}
+- Crear tablas y consultar datos con las instrucciones básicas de SQL.
+- Usar SQLite desde Python con consultas parametrizadas, sin riesgo de inyección SQL.
+- Garantizar con transacciones que una operación se guarde completa o no se guarde.
+:::
+
+::: {.callout-note .problema title="Problema de inicio"}
+Doña Rosa pide anular una venta de ayer: el cliente devolvió los quesos. En el `ventas.csv` de la versión 1, cada producto es una línea suelta. ¿Cuáles líneas eran de esa venta? ¿Cómo devuelves el stock? ¿Y qué pasa si el programa se cierra justo después de escribir la mitad de las líneas de una venta?
+:::
+
+## Por qué una base de datos
+
+El archivo CSV del Libro 1 cumplió su función: los datos sobrevivían al cierre del programa. Pero con las historias de MiTienda v2 aparecen problemas que un archivo de texto no resuelve bien:
+
+| Necesidad | Con un CSV | Con una base de datos |
+|---|---|---|
+| Buscar las ventas de un día | Leer todo el archivo y filtrar en Python | Una consulta: `WHERE fecha LIKE '2026-11-16%'` |
+| Relacionar una venta con sus productos | No hay forma estándar | Tablas relacionadas por un identificador |
+| Impedir datos inválidos (precio negativo) | Solo si el programa lo valida | La base lo rechaza con restricciones |
+| Guardar una venta completa o nada | Si se corta a la mitad, queda incompleta | Transacciones |
+
+: Archivo CSV frente a base de datos {tbl-colwidths="[30,35,35]"}
+
+**SQLite** es un motor de base de datos que guarda todo en un solo archivo y viene incluido en Python: no hay que instalar ni configurar un servidor. Es una de las bases de datos más usadas del mundo, presente en navegadores y teléfonos, y es ideal para una aplicación como MiTienda. Si el día de mañana la tienda crece a varias sucursales que comparten datos, el SQL que aprendes aquí sirve casi igual en motores con servidor, como PostgreSQL o MySQL.
+
+## Tablas, filas y columnas
+
+Una base de datos relacional organiza los datos en **tablas**. Cada tabla tiene **columnas** con nombre y tipo, y cada registro es una **fila**. Se crean con el lenguaje **SQL** (*Structured Query Language*). Desde Python, el módulo `sqlite3` envía las instrucciones a la base:
+
+```{python}
+import sqlite3
+
+con = sqlite3.connect(":memory:")   # en un programa real: "mitienda.db"
+con.execute("""
+    CREATE TABLE productos (
+        id     INTEGER PRIMARY KEY,
+        nombre TEXT    NOT NULL UNIQUE,
+        precio REAL    NOT NULL CHECK (precio > 0),
+        stock  INTEGER NOT NULL DEFAULT 0
+    )
+""")
+print("Tabla creada")
+```
+
+`sqlite3.connect("mitienda.db")` abre el archivo (o lo crea si no existe). En los ejemplos de este capítulo se usa `":memory:"`, una base temporal que vive en la memoria, igual que en las pruebas del capítulo 7.
+
+Cada columna lleva **restricciones** que la base hace cumplir:
+
+- `PRIMARY KEY`: identificador único de cada fila. SQLite lo numera solo.
+- `NOT NULL`: el valor es obligatorio.
+- `UNIQUE`: no puede haber dos productos con el mismo nombre.
+- `CHECK (precio > 0)`: una condición que todo valor debe cumplir.
+- `DEFAULT 0`: valor que se usa si no se indica otro.
+
+## Insertar y consultar
+
+`INSERT` agrega filas. Los valores **nunca** se escriben dentro del texto de la consulta: se ponen signos `?` y los valores se pasan aparte, en una tupla. Ya verás por qué.
+
+```{python}
+con.execute(
+    "INSERT INTO productos (nombre, precio, stock) VALUES (?, ?, ?)",
+    ("pan", 0.5, 200),
+)
+con.executemany(
+    "INSERT INTO productos (nombre, precio, stock) VALUES (?, ?, ?)",
+    [("leche", 6.0, 30), ("queso", 45.0, 8), ("arroz", 9.5, 40)],
+)
+con.commit()
+```
+
+`commit()` confirma los cambios. Hasta que no se confirman, los cambios no quedan guardados en el archivo.
+
+`SELECT` consulta. Se le indica qué columnas, de qué tabla, con qué condición (`WHERE`) y en qué orden (`ORDER BY`):
+
+```{python}
+consulta = """
+    SELECT nombre, precio, stock FROM productos
+    WHERE stock < 50
+    ORDER BY precio DESC
+"""
+for fila in con.execute(consulta):
+    print(fila)
+```
+
+Cada fila llega como una tupla. SQL también calcula: `COUNT`, `SUM`, `AVG`, `MIN` y `MAX` resumen muchas filas en un valor. `UPDATE` modifica filas existentes y `DELETE` las elimina; los dos llevan un `WHERE`, porque sin él afectan a **toda** la tabla.
+
+```{python}
+resumen = "SELECT COUNT(*), SUM(stock), ROUND(AVG(precio), 2) FROM productos"
+print(con.execute(resumen).fetchone())
+
+con.execute("UPDATE productos SET precio = ? WHERE nombre = ?", (0.6, "pan"))
+print(con.execute("SELECT precio FROM productos WHERE nombre = 'pan'").fetchone())
+```
+
+`fetchone()` devuelve la primera fila del resultado; `fetchall()`, una lista con todas.
+
+## Restricciones que protegen los datos
+
+Si el programa intenta guardar algo que viola una restricción, SQLite lo rechaza con un `IntegrityError`:
+
+```{python}
+for nombre, precio in [("pan", 0.6), ("fideo", -3)]:
+    try:
+        con.execute(
+            "INSERT INTO productos (nombre, precio) VALUES (?, ?)", (nombre, precio)
+        )
+    except sqlite3.IntegrityError as error:
+        print(f"{nombre}: {error}")
+```
+
+Esto es una segunda línea de defensa. El programa debe validar los datos y explicarle el problema al usuario (Libro 1, capítulo 9), pero si algún día un error de programación deja pasar un precio negativo, la base no lo acepta.
+
+## Inyección SQL: por qué siempre `?`
+
+Imagina que la búsqueda de productos se escribe con una f-string, metiendo el texto del usuario directamente en la consulta. Y que un usuario malintencionado, o simplemente curioso, escribe esto como nombre de producto:
+
+```{python}
+nombre = "x' OR '1'='1"
+
+# MAL: el texto del usuario se vuelve parte del SQL
+inseguro = f"SELECT nombre FROM productos WHERE nombre = '{nombre}'"
+print(con.execute(inseguro).fetchall())
+
+# BIEN: el texto del usuario es solo un dato
+print(con.execute("SELECT nombre FROM productos WHERE nombre = ?", (nombre,)).fetchall())
+```
+
+Con la f-string, la consulta que llega a la base es `WHERE nombre = 'x' OR '1'='1'`, una condición que siempre es verdadera: devuelve **todos** los productos. Con una consulta de borrado, el mismo truco borraría la tabla entera. Esto se llama **inyección SQL** y es una de las vulnerabilidades más conocidas de las aplicaciones. Con `?`, el texto completo se trata como un nombre de producto, que no existe, y la consulta no devuelve nada. La documentación de Python lo advierte de forma explícita: hay que usar siempre marcadores de posición y nunca las operaciones de texto de Python para armar consultas (Python Software Foundation, s. f.).
+
+## Transacciones: todo o nada
+
+Una venta de MiTienda v2 hace varias escrituras: crea la venta, agrega una línea por producto y descuenta el stock de cada uno. Si el programa falla en medio, la base quedaría con una venta a medias. Una **transacción** agrupa varias operaciones para que se guarden **todas o ninguna**.
+
+En Python, la conexión se usa como administrador de contexto con `with`: si el bloque termina bien, confirma (*commit*); si ocurre una excepción, deshace todo lo del bloque (*rollback*):
+
+```{python}
+try:
+    with con:
+        con.execute("UPDATE productos SET stock = stock - 3 WHERE nombre = 'queso'")
+        con.execute("INSERT INTO productos (nombre, precio) VALUES ('error', -1)")
+except sqlite3.IntegrityError:
+    print("Algo falló: se deshizo toda la transacción")
+
+print(con.execute("SELECT stock FROM productos WHERE nombre = 'queso'").fetchone())
+```
+
+El stock del queso descontado en la primera línea se restauró, porque la segunda falló dentro del mismo bloque. Es la respuesta a la última pregunta del problema de inicio.
+
+## Relacionar tablas
+
+Una venta tiene varios productos y un producto aparece en muchas ventas. Esa relación se modela con una tabla intermedia, `lineas_venta`, que guarda los identificadores de la venta y del producto. Es el modelo de datos del capítulo 5, convertido en SQL:
+
+```{.sql}
+CREATE TABLE ventas (
+    id      INTEGER PRIMARY KEY,
+    fecha   TEXT    NOT NULL,
+    total   REAL    NOT NULL,
+    anulada INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE lineas_venta (
+    venta_id    INTEGER NOT NULL REFERENCES ventas(id),
+    producto_id INTEGER NOT NULL REFERENCES productos(id),
+    cantidad    INTEGER NOT NULL CHECK (cantidad > 0),
+    importe     REAL    NOT NULL
+);
+```
+
+`REFERENCES` declara una **clave foránea**: `producto_id` debe ser el `id` de un producto que existe. Para leer datos de varias tablas a la vez, se usa `JOIN`. Esta es la consulta que exporta las ventas de un mes (historia HU-06) en `almacen.py`:
+
+```{.sql}
+SELECT v.fecha, p.nombre, l.cantidad, l.importe
+FROM lineas_venta l
+JOIN ventas v    ON v.id = l.venta_id
+JOIN productos p ON p.id = l.producto_id
+WHERE v.fecha LIKE ? AND v.anulada = 0
+ORDER BY v.fecha
+```
+
+Se lee así: por cada línea de venta, trae la fecha de su venta y el nombre de su producto, solo de las ventas del mes indicado que no fueron anuladas. Las letras `l`, `v` y `p` son alias para no repetir los nombres completos de las tablas.
+
+::: {.callout-warning .error title="Errores que vi como ayudante"}
+**1. Armar consultas con f-strings.** Funciona en todas las pruebas «normales» y abre la puerta a la inyección SQL. También falla con datos legítimos: el producto `galletas d'Onofrio` rompe la consulta por el apóstrofo. *Regla sin excepciones:* los valores van siempre con `?`.
+
+**2. Olvidar el `commit`.** El programa inserta, muestra «guardado», se cierra… y los datos no están. *Por qué pasa:* los cambios quedaron en una transacción sin confirmar y, al cerrar la conexión, se descartan. *Cómo evitarlo:* usa `with con:` en toda escritura, que confirma sola al terminar el bloque.
+
+**3. Subir la base de datos al repositorio.** Cada integrante tiene datos distintos en su `mitienda.db` y cada pull request trae conflictos en un archivo binario que Git no puede fusionar. *Cómo evitarlo:* agrega `*.db` al `.gitignore` y que el programa cree las tablas al iniciar si no existen (`CREATE TABLE IF NOT EXISTS`).
+:::
+
+::: {.callout-tip .consejo title="Consejo de ayudante"}
+Instala *DB Browser for SQLite* (sqlitebrowser.org), un programa gratuito para abrir un archivo `.db`, ver sus tablas y ejecutar consultas a mano. Antes de escribir una consulta en Python, pruébala ahí: si devuelve lo que esperas, recién la llevas al código.
+:::
+
+## Retos
+
+::: {.callout-note .reto-basico title="Reto 8.1 · Básico"}
+Con DB Browser for SQLite, crea la tabla `productos` de este capítulo, inserta cinco productos y escribe consultas para: los productos con precio mayor que 10, el producto más barato y el valor total del inventario (precio por stock, sumado).
+:::
+
+::: {.callout-note .reto-intermedio title="Reto 8.2 · Intermedio · autocorregible"}
+Escribe la función `migrar_csv(ruta_csv, con)` que lea el `ventas.csv` de MiTienda v1.0 y guarde cada fila en las tablas de la versión 2. Pruébala con una base `":memory:"` y un CSV de tres filas creado en `tmp_path`.
+:::
+
+::: {.callout-note .reto-desafio title="Reto 8.3 · Desafío"}
+Agrega a `almacen.py` la función `ranking_productos(con, mes)`, que devuelva los productos ordenados por unidades vendidas en el mes, usando una sola consulta con `JOIN`, `GROUP BY` y `SUM`. Escribe su prueba antes de escribir la consulta.
+:::
+
+::: {.callout-important .ia title="IA con criterio"}
+**Pídele que te explique consultas, y revisa las que te escriba.**
+
+*«Explícame paso a paso qué hace esta consulta SQL y qué filas devolvería con estos datos de ejemplo: [consulta y datos].»*
+
+**Verifica la respuesta:** ejecuta la consulta en DB Browser con los mismos datos y compara. Si le pides que escriba una consulta, revisa siempre dos cosas antes de usarla: que los valores vayan con `?` y que todo `UPDATE` o `DELETE` tenga su `WHERE`.
+:::
+
+## Avance de MiTienda v2: el almacén en SQLite
+
+El módulo `almacen.py` reemplaza el CSV por SQLite. Gracias al diseño en capas del capítulo 5, `reglas.py` no cambió en absoluto y `cli.py` solo cambió para recibir la conexión. Esta es la función que registra una venta, el corazón de la historia HU-01 (abreviada: el repositorio tiene también la validación de cantidades):
+
+```{.python}
+def registrar_venta(con, pedido: dict[str, int], fecha: str | None = None) -> int:
+    """Registra una venta de varios productos y descuenta el stock."""
+    if not pedido:
+        raise ErrorDeVenta("La venta no tiene productos")
+    fecha = fecha or datetime.now().strftime("%Y-%m-%d %H:%M")
+    lineas = []
+    for nombre, cantidad in pedido.items():
+        producto = buscar_producto(con, nombre)
+        if producto is None:
+            raise ErrorDeVenta(f"'{nombre}' no está en el catálogo")
+        if cantidad > producto["stock"]:
+            raise ErrorDeVenta(
+                f"Solo hay {producto['stock']} unidades de '{producto['nombre']}'"
+            )
+        lineas.append((producto, cantidad, producto["precio"] * cantidad))
+
+    subtotal = sum(importe for _, _, importe in lineas)
+    porcentaje = reglas.calcular_descuento(subtotal)
+    total = reglas.aplicar_descuento(subtotal, porcentaje)
+
+    with con:  # transacción: o se guarda todo, o nada
+        venta_id = con.execute(
+            "INSERT INTO ventas (fecha, total) VALUES (?, ?)", (fecha, total)
+        ).lastrowid
+        for producto, cantidad, importe in lineas:
+            con.execute(
+                "INSERT INTO lineas_venta (venta_id, producto_id, cantidad, importe)"
+                " VALUES (?, ?, ?, ?)",
+                (venta_id, producto["id"], cantidad,
+                 reglas.aplicar_descuento(importe, porcentaje)),
+            )
+            con.execute(
+                "UPDATE productos SET stock = stock - ? WHERE id = ?",
+                (cantidad, producto["id"]),
+            )
+    return venta_id
+```
+
+Observa el orden: primero se **valida todo** (que cada producto exista y tenga stock) y recién después se abre la transacción para escribir. Así, una venta inválida no llega a tocar la base. `producto["stock"]` funciona porque la conexión se configuró con `row_factory = sqlite3.Row`, que permite leer las columnas por su nombre en lugar de por su posición.
+
+Anular una venta (HU-05) ahora es posible: se marca `anulada = 1` y se devuelve el stock de sus líneas, todo en una transacción. Las pruebas del capítulo 7 cubren los dos casos.
+
+::: {.callout-note .resumen title="Resumen"}
+- Una base de datos relacional organiza los datos en tablas con columnas, filas y restricciones.
+- SQLite guarda todo en un archivo y viene incluido en Python a través del módulo `sqlite3`.
+- `CREATE`, `INSERT`, `SELECT`, `UPDATE` y `DELETE` cubren las operaciones básicas; `JOIN` combina tablas relacionadas.
+- Los valores se pasan siempre con `?`: nunca armes consultas con f-strings.
+- `with con:` agrupa escrituras en una transacción que se guarda completa o se deshace.
+:::
+
+::: {.callout-note title="Código QR"}
+![](img/qr_pendiente.png){width=15%} Módulo `almacen.py` completo y script de migración desde CSV
+:::

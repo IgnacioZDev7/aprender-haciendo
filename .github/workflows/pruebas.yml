@@ -1,0 +1,39 @@
+name: Pruebas de MiTienda
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12", "3.13"]
+    defaults:
+      run:
+        working-directory: mitienda/v2
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Instalar Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Instalar dependencias
+        run: pip install pytest pytest-cov ruff
+
+      - name: Revisar estilo con Ruff
+        run: |
+          ruff check .
+          ruff format --check .
+
+      - name: Ejecutar pruebas de MiTienda v2
+        run: pytest --cov=mitienda
+
+      - name: Ejecutar pruebas de MiTienda v1
+        working-directory: mitienda/v1
+        run: python test_mitienda.py

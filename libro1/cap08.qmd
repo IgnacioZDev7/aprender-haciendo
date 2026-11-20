@@ -1,0 +1,227 @@
+# Que los datos no se pierdan: archivos {#sec-cap8}
+
+::: {.callout-note .objetivos title="Al terminar este capítulo podrás"}
+- Escribir y leer archivos de texto con `open()` y `with`.
+- Elegir el modo de apertura correcto para no borrar datos por accidente.
+- Guardar y leer datos en formato CSV, que se abre en Excel.
+:::
+
+::: {.callout-note .problema title="Problema de inicio"}
+Son las seis de la tarde y MiTienda registró 57 ventas. Se corta la luz. Cuando vuelve, Doña Rosa abre el programa y el total del día dice 0.00. ¿Dónde estaban las ventas? ¿Dónde deberían haber estado?
+:::
+
+## Memoria y disco
+
+Todas las variables que usaste hasta ahora viven en la **memoria RAM**: es rápida, pero se borra cuando el programa termina o la computadora se apaga. Para que un dato sobreviva, hay que guardarlo en el **disco**, dentro de un **archivo**.
+
+Trabajar con un archivo siempre tiene tres pasos, como abrir un cuaderno:
+
+1. **Abrirlo**, indicando si vas a leer o a escribir.
+2. **Leer o escribir**.
+3. **Cerrarlo**, para que los cambios queden guardados de verdad.
+
+## Escribir un archivo
+
+En Python, `open()` abre un archivo y la instrucción `with` se encarga de cerrarlo automáticamente al terminar el bloque, incluso si ocurre un error. Úsala siempre:
+
+```python
+with open("notas.txt", "w", encoding="utf-8") as archivo:
+    archivo.write("Comprar pan\n")
+    archivo.write("Pagar la luz\n")
+print("Archivo guardado")
+```
+
+```{.text .salida}
+Archivo guardado
+```
+
+Si abres la carpeta donde está tu programa, encontrarás `notas.txt` con dos líneas. Tres detalles:
+
+- `"w"` es el **modo**: *write*, escribir.
+- `write()` no agrega el salto de línea por ti; por eso cada texto termina en `\n`.
+- `encoding="utf-8"` asegura que las tildes y la ñ se guarden bien en cualquier sistema operativo. Sin esto, «Peña» puede convertirse en «PeÃ±a» al abrir el archivo en otra computadora.
+
+## Los modos de apertura
+
+El modo es la decisión más importante al abrir un archivo, porque uno de ellos **borra el contenido anterior sin preguntar**:
+
+| Modo | Nombre | Si el archivo existe | Si no existe |
+|---|---|---|---|
+| `"r"` | Leer (*read*) | Lo lee | Error `FileNotFoundError` |
+| `"w"` | Escribir (*write*) | **Borra todo** y escribe desde cero | Lo crea |
+| `"a"` | Agregar (*append*) | Escribe **al final**, conserva lo anterior | Lo crea |
+
+: Modos de apertura de archivos {tbl-colwidths="[12,22,36,30]"}
+
+Para un registro de ventas, que crece durante el día, el modo correcto es `"a"`:
+
+```python
+with open("ventas.txt", "a", encoding="utf-8") as archivo:
+    archivo.write("pan,10,5.0\n")
+with open("ventas.txt", "a", encoding="utf-8") as archivo:
+    archivo.write("queso,3,135.0\n")
+print("Dos ventas guardadas")
+```
+
+```{.text .salida}
+Dos ventas guardadas
+```
+
+## Leer un archivo
+
+Para leer, abre en modo `"r"` y recorre el archivo con `for`: cada vuelta te entrega una línea, **incluido** su salto de línea final. `strip()` lo quita:
+
+```python
+with open("ventas.txt", "w", encoding="utf-8") as archivo:
+    archivo.write("pan,10,5.0\nqueso,3,135.0\n")
+
+with open("ventas.txt", "r", encoding="utf-8") as archivo:
+    for linea in archivo:
+        print(linea.strip())
+```
+
+```{.text .salida}
+pan,10,5.0
+queso,3,135.0
+```
+
+Cada línea es un texto. Para usar sus partes, sepáralas con `split(",")`, que devuelve una lista, y convierte los números con `int()` o `float()`, como hacías con `input()`:
+
+```python
+with open("ventas.txt", "w", encoding="utf-8") as archivo:
+    archivo.write("pan,10,5.0\nqueso,3,135.0\n")
+
+total = 0
+with open("ventas.txt", "r", encoding="utf-8") as archivo:
+    for linea in archivo:
+        partes = linea.strip().split(",")
+        total += float(partes[2])
+print(f"Total vendido: {total:.2f}")
+```
+
+```{.text .salida}
+Total vendido: 140.00
+```
+
+## El formato CSV
+
+Lo que acabas de escribir, valores separados por comas y una fila por línea, es un formato con nombre: **CSV** (*comma-separated values*). Se abre directamente en Excel, Google Sheets o LibreOffice Calc, así que Doña Rosa puede ver sus ventas en una planilla sin saber nada de Python.
+
+Separar con `split(",")` funciona mientras ningún dato tenga comas. Pero el día que vendas «galletas, paquete grande», la línea tendrá una coma de más y las columnas se desplazarán. El módulo `csv` de Python resuelve estos casos (pone comillas donde hace falta) y es la forma recomendada (Python Software Foundation, s. f.-d):
+
+```python
+import csv
+
+with open("ventas.csv", "a", newline="", encoding="utf-8") as archivo:
+    escritor = csv.writer(archivo)
+    escritor.writerow(["pan", 10, 5.0])
+    escritor.writerow(["galletas, paquete grande", 2, 24.0])
+
+with open("ventas.csv", newline="", encoding="utf-8") as archivo:
+    for fila in csv.reader(archivo):
+        print(fila)
+```
+
+```{.text .salida}
+['pan', '10', '5.0']
+['galletas, paquete grande', '2', '24.0']
+```
+
+Dos detalles: `newline=""` es lo que pide la documentación del módulo `csv` para que no aparezcan líneas en blanco de más en Windows, y `csv.reader` devuelve cada fila como una **lista de textos**. Los números vuelven como texto: hay que convertirlos.
+
+::: {.callout-warning .error title="Errores que vi como ayudante"}
+**19. Usar `"w"` donde iba `"a"`.** El programa funciona, guarda la venta… y al día siguiente el archivo solo tiene la última. No hay ningún mensaje de error: `"w"` hizo exactamente lo que le pediste, que es borrar y empezar de nuevo. Lo vi pasar en entregas finales, con el archivo de ejemplo del docente incluido.
+
+*Regla:* para registros que crecen, `"a"`. Usa `"w"` solo cuando quieras reemplazar el archivo completo a propósito, y en ese caso haz antes una copia.
+
+Un error relacionado, que sí avisa:
+
+```{.text .salida}
+FileNotFoundError: [Errno 2] No such file or directory: 'ventas.csv'
+```
+
+*Por qué pasa:* intentas leer (`"r"`) un archivo que todavía no existe, o el programa se ejecuta desde **otra carpeta**. Python busca los archivos en la carpeta desde donde ejecutaste el programa, no necesariamente donde está el `.py`. *Solución:* en VS Code, abre la carpeta del proyecto completa (*File → Open Folder*) antes de ejecutar. En el capítulo 9 verás cómo atrapar este error para que el programa no se detenga.
+:::
+
+::: {.callout-tip .consejo title="Consejo de ayudante"}
+Abre tu CSV en un editor de texto (no en Excel) al menos una vez. Excel a veces interpreta los datos a su manera: convierte `1.5` en una fecha o cambia el separador decimal según la configuración regional. Ver el texto plano te muestra lo que tu programa realmente escribió.
+:::
+
+## Retos
+
+::: {.callout-note .reto-basico title="Reto 8.1 · Básico"}
+Escribe un programa que pida tres tareas pendientes y las guarde en `tareas.txt`, una por línea. Luego, en un segundo programa, lee el archivo y muestra las tareas numeradas: `1. Comprar pan`.
+:::
+
+::: {.callout-note .reto-intermedio title="Reto 8.2 · Intermedio · autocorregible"}
+Escribe la función `total_archivo(nombre)` que lea un CSV con filas `producto,cantidad,importe` y devuelva la suma de la columna importe. Crea un archivo de prueba con tres filas y comprueba el resultado con `assert`.
+:::
+
+::: {.callout-note .reto-desafio title="Reto 8.3 · Desafío"}
+Guarda el catálogo de MiTienda en `catalogo.csv` (`producto,precio`) y modifica el programa para que lo **cargue** al iniciar, en lugar de tenerlo escrito en el código. Así Doña Rosa podrá cambiar un precio en Excel sin tocar Python. ¿Qué pasa si alguien deja una fila con el precio vacío?
+:::
+
+::: {.callout-important .ia title="IA con criterio"}
+**Pídele que te explique un error con tus propias palabras.** Cuando un archivo no se lea como esperabas:
+
+*«Mi programa lee un CSV y obtengo este error: [pega el mensaje completo]. Explícame qué significa cada parte del mensaje y qué debería revisar, sin darme el código corregido.»*
+
+**Verifica la respuesta:** los mensajes de error de Python son difíciles para los principiantes y la investigación lo documenta hace años (Becker et al., 2019). Usa la explicación para entender el mensaje, pero confirma la causa tú mismo: abre el archivo, mira la carpeta, imprime la línea problemática.
+:::
+
+## Avance de MiTienda (v0.8)
+
+Cada venta se guarda en `ventas.csv` en el momento en que se registra, con la fecha y la hora. Si se corta la luz, se pierde como máximo la venta que se estaba escribiendo. Se muestran solo las funciones nuevas:
+
+```python
+# MiTienda v0.8: guardar las ventas en un archivo
+import csv
+from datetime import datetime
+
+ARCHIVO_VENTAS = "ventas.csv"
+
+def guardar_venta(producto, cantidad, importe):
+    """Agrega una línea al archivo de ventas (no borra las anteriores)."""
+    fecha = datetime.now().strftime("%Y-%m-%d %H:%M")
+    with open(ARCHIVO_VENTAS, "a", newline="", encoding="utf-8") as f:
+        csv.writer(f).writerow([fecha, producto, cantidad, importe])
+
+def total_vendido():
+    """Suma la columna de importes de todas las ventas guardadas."""
+    suma = 0
+    with open(ARCHIVO_VENTAS, newline="", encoding="utf-8") as f:
+        for fila in csv.reader(f):
+            suma += float(fila[3])
+    return suma
+
+guardar_venta("pan", 10, 5.0)
+guardar_venta("queso", 3, 135.0)
+print(f"Total vendido: {total_vendido():.2f}")
+```
+
+```{.text .salida}
+Total vendido: 140.00
+```
+
+Y así se ve `ventas.csv` por dentro (las horas dependen de cuándo lo ejecutes):
+
+```{.text}
+2026-11-16 09:15,pan,10,5.0
+2026-11-16 09:15,queso,3,135.0
+```
+
+La función `guardar_venta` se llama desde `registrar_venta`, una vez por cada producto vendido. El módulo `datetime` aporta la fecha y la hora; la cadena `"%Y-%m-%d %H:%M"` indica el formato año-mes-día hora:minuto.
+
+Prueba algo: ejecuta el programa, ciérralo y vuelve a ejecutarlo. El total ahora incluye las ventas de la vez anterior. Los datos sobreviven. Pero también prueba a borrar `ventas.csv` y llamar a `total_vendido()`: el programa se detiene con un `FileNotFoundError`. Lo vas a resolver en el capítulo 9.
+
+::: {.callout-note .resumen title="Resumen"}
+- Las variables viven en la memoria y se pierden al cerrar el programa; los archivos viven en el disco.
+- Abre archivos con `with open(...)`, que los cierra solo; usa `encoding="utf-8"`.
+- `"r"` lee, `"a"` agrega al final y `"w"` **borra** y escribe desde cero.
+- Al leer, cada línea es un texto: `strip()`, `split()` y conversión de tipos.
+- Para datos en tabla, usa el módulo `csv` con `newline=""`.
+:::
+
+::: {.callout-note title="Código QR"}
+![](img/qr_pendiente.png){width=15%} Código y soluciones del capítulo 8
+:::

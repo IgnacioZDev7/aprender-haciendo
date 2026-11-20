@@ -1,0 +1,9 @@
+# Presentación {.unnumbered}
+
+*Del programa al producto* es el segundo libro de la serie «Aprender Haciendo». Parte de MiTienda v1, el programa de consola que se construye en el Libro 1, y lo convierte paso a paso en un producto de software hecho en equipo: con control de versiones, historias de usuario, método ágil, diseño en capas, pruebas automatizadas, base de datos e integración continua.
+
+Esta edición está disponible en dos formatos generados a partir de los mismos archivos fuente: la **versión web** y la **versión PDF** en tamaño A5. El código completo de MiTienda v2, con sus pruebas y sus flujos de GitHub Actions, está en el repositorio del libro, y cada fragmento de código del libro proviene de ese proyecto.
+
+::: {.callout-note title="Estado de esta edición"}
+Versión 0.9, noviembre de 2026. Los diez capítulos y el anexo de plantillas están completos. Pendiente para la versión 1.0: validación de los capítulos con equipos de estudiantes, soluciones de los retos y la ilustración de portada.
+:::

@@ -1,0 +1,252 @@
+# Pruebas automatizadas con pytest {#sec-cap7}
+
+::: {.callout-note .objetivos title="Al terminar este capítulo podrás"}
+- Escribir y ejecutar pruebas automatizadas con pytest.
+- Usar parametrización, *fixtures* y verificación de excepciones para probar más con menos código.
+- Medir la cobertura de las pruebas e interpretarla con criterio.
+:::
+
+::: {.callout-note .problema title="Problema de inicio"}
+El viernes, Luis cambió un `>` por un `>=` en la regla de descuentos para resolver un pedido de Doña Rosa. El lunes, una clienta que compró exactamente 200 bolivianos recibió el 10 % de descuento en lugar del 5 %. Nadie probó ese caso «porque el cambio era de un carácter». ¿Cómo se evita que un cambio pequeño rompa algo sin que nadie se entere?
+:::
+
+## Por qué automatizar las pruebas
+
+En el Libro 1 probabas a mano: ejecutabas el programa, escribías datos y mirabas el resultado. Funciona la primera vez. El problema es la **segunda**, la décima y la centésima: cada cambio puede romper algo que antes funcionaba, y nadie vuelve a probar a mano los veinte casos de cada función después de cada commit.
+
+Una **prueba automatizada** es código que ejecuta tu código y comprueba el resultado. Se escribe una vez y se ejecuta miles de veces, en segundos. En el capítulo 6 del Libro 1 lo hacías con `assert` al final del programa. Ahora vas a usar **pytest**, la herramienta de pruebas más usada en Python, que encuentra las pruebas sola, las ejecuta y te informa con precisión qué falló.
+
+Las pruebas no demuestran que un programa no tiene errores: solo muestran que funciona en los casos que probaste. Por eso la habilidad clave no es escribir pruebas, sino **elegir buenos casos**: las fronteras, los datos inválidos y los casos normales, exactamente como en el capítulo 4 del Libro 1.
+
+## Tu primera prueba con pytest
+
+pytest se instala con `pip install pytest`. Sus reglas son simples:
+
+- Las pruebas están en archivos que empiezan con `test_`.
+- Cada prueba es una función que empieza con `test_`.
+- Dentro, se usa `assert` común y corriente.
+
+Este es `tests/test_reglas.py`, que prueba las funciones puras del capítulo 5:
+
+```{.python}
+from mitienda import reglas
+
+
+def test_aplicar_descuento_redondea():
+    assert reglas.aplicar_descuento(140, 5) == 133.0
+    assert reglas.aplicar_descuento(10, 0) == 10
+
+
+def test_necesita_reposicion():
+    assert reglas.necesita_reposicion(9)
+    assert not reglas.necesita_reposicion(10)
+```
+
+Desde la carpeta del proyecto, `pytest` busca y ejecuta todas las pruebas. Esta es la salida real con las 19 pruebas de MiTienda v2 (en tu computadora cambiarán la ruta y las versiones):
+
+```{.text .salida}
+$ pytest
+============================= test session starts ==============================
+platform linux -- Python 3.13.17, pytest-9.2.0, pluggy-1.7.0
+rootdir: .../mitienda/v2
+configfile: pyproject.toml
+testpaths: tests
+collected 19 items
+
+tests/test_almacen.py .........                                          [ 47%]
+tests/test_cli.py ..                                                     [ 57%]
+tests/test_reglas.py ........                                            [100%]
+
+============================== 19 passed in 0.05s ==============================
+```
+
+Cada punto es una prueba que pasó. Diecinueve comprobaciones en cinco centésimas de segundo.
+
+## Cuando una prueba falla
+
+Volvamos al problema de inicio y hagamos el cambio de Luis: `>` por `>=` en `calcular_descuento`. Esto es lo que muestra pytest (con algunas líneas omitidas):
+
+```{.text .salida}
+$ pytest -q tests/test_reglas.py
+...F....                                                                 [100%]
+=================================== FAILURES ===================================
+________________________ test_calcular_descuento[200-5] ________________________
+
+subtotal = 200, esperado = 5
+
+    def test_calcular_descuento(subtotal, esperado):
+>       assert reglas.calcular_descuento(subtotal) == esperado
+E       assert 10 == 5
+E        +  where 10 = <function calcular_descuento at 0x7f774370af20>(200)
+
+tests/test_reglas.py:11: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_reglas.py::test_calcular_descuento[200-5] - assert 10 == 5
+1 failed, 7 passed in 0.02s
+```
+
+Se lee igual que un traceback: la prueba que falló (`[200-5]`, es decir, subtotal 200 con resultado esperado 5), el valor obtenido (`10`) y la línea. pytest reescribe los `assert` para mostrar los valores reales, algo que el `assert` simple del Libro 1 no hacía. Con esta prueba en el repositorio, Luis se habría enterado en segundos, el viernes, y no la clienta el lunes.
+
+## Probar más con menos código
+
+### Parametrizar
+
+La regla de descuentos tiene seis casos interesantes. En lugar de seis funciones casi iguales, `@pytest.mark.parametrize` ejecuta la misma prueba con cada par de datos:
+
+```{.python}
+import pytest
+
+from mitienda import reglas
+
+
+@pytest.mark.parametrize(
+    "subtotal, esperado",
+    [(50, 0), (100, 0), (100.01, 5), (200, 5), (200.01, 10), (1000, 10)],
+)
+def test_calcular_descuento(subtotal, esperado):
+    assert reglas.calcular_descuento(subtotal) == esperado
+```
+
+La lista de casos es la tabla de pruebas del capítulo 4 del Libro 1, escrita como código. Cada caso aparece como una prueba separada en el informe, así que sabes exactamente cuál falló.
+
+### Comprobar que algo falla cuando debe
+
+Las pruebas de errores son tan importantes como las de éxito. Si alguien intenta vender seis quesos y hay cinco, `registrar_venta` debe lanzar `ErrorDeVenta` **y no guardar nada**. `pytest.raises` comprueba lo primero; las líneas siguientes, lo segundo:
+
+```{.python}
+def test_no_vende_mas_que_el_stock(con):
+    with pytest.raises(almacen.ErrorDeVenta, match="Solo hay 5"):
+        almacen.registrar_venta(con, {"queso": 6})
+    # La venta fallida no dejó rastros
+    assert almacen.buscar_producto(con, "queso")["stock"] == 5
+    assert con.execute("SELECT COUNT(*) FROM ventas").fetchone()[0] == 0
+```
+
+`match` comprueba además que el mensaje del error contenga ese texto, para que el cajero reciba una explicación útil.
+
+### Fixtures: preparar el escenario
+
+¿De dónde salió el parámetro `con` de la prueba anterior? Es una **fixture**: una función que prepara lo que las pruebas necesitan. Se define en `tests/conftest.py`, un archivo que pytest carga automáticamente:
+
+```{.python}
+import pytest
+
+from mitienda import almacen
+
+
+@pytest.fixture
+def con():
+    """Base de datos en memoria con un catálogo pequeño, nueva en cada prueba."""
+    conexion = almacen.conectar(":memory:")
+    almacen.agregar_producto(conexion, "pan", 0.5, 100)
+    almacen.agregar_producto(conexion, "queso", 45.0, 5)
+    yield conexion
+    conexion.close()
+```
+
+Cuando una prueba tiene un parámetro llamado `con`, pytest ejecuta la fixture y le pasa lo que entrega `yield`. Al terminar la prueba, ejecuta lo que sigue al `yield` para limpiar. Dos detalles hacen que estas pruebas sean confiables:
+
+- `":memory:"` crea una base de datos que vive solo en la memoria (capítulo 8). Cada prueba empieza con datos **conocidos y nuevos**, y nunca toca la base real de Doña Rosa.
+- Las pruebas no dependen unas de otras: se pueden ejecutar en cualquier orden, o una sola, y dan el mismo resultado.
+
+pytest trae fixtures incorporadas. Dos muy útiles: `tmp_path`, una carpeta temporal para pruebas que escriben archivos, y `monkeypatch`, que permite reemplazar algo durante una prueba. Con `monkeypatch` se puede probar incluso la interfaz, reemplazando `input()` por una lista de respuestas:
+
+```{.python}
+def test_pedir_entero_insiste_hasta_dato_valido(monkeypatch, capsys):
+    respuestas = iter(["tres", "0", "3"])
+    monkeypatch.setattr("builtins.input", lambda mensaje="": next(respuestas))
+    assert cli.pedir_entero("Cantidad: ") == 3
+    assert "Escribe un número entero" in capsys.readouterr().out
+```
+
+`capsys` captura lo que el programa imprimió, para comprobar los mensajes.
+
+## Cobertura: qué parte del código se probó
+
+La **cobertura** mide qué porcentaje de las líneas del código se ejecutó durante las pruebas. Con el complemento `pytest-cov`:
+
+```{.text .salida}
+$ pytest --cov=mitienda --cov-report=term-missing
+Name                   Stmts   Miss  Cover   Missing
+----------------------------------------------------
+mitienda/__init__.py       1      0   100%
+mitienda/__main__.py       2      2     0%   1-3
+mitienda/almacen.py       67      2    97%   85, 93
+mitienda/cli.py           70     16    77%   42-44, 52-54, 66-70, 74-77, 104, 109
+mitienda/reglas.py        15      0   100%
+----------------------------------------------------
+TOTAL                    155     20    87%
+```
+
+La columna `Missing` dice qué líneas **nunca** se ejecutaron: ahí puede haber errores que ninguna prueba detectaría. Dos advertencias sobre este número:
+
+- **Cobertura alta no significa pruebas buenas.** Una prueba que ejecuta una línea sin comprobar su resultado suma cobertura y no prueba nada.
+- **No persigas el 100 %.** Las líneas sin cubrir de `__main__.py` solo arrancan el programa; probarlas cuesta más de lo que aporta. Usa el informe para encontrar lo importante sin probar, no como meta en sí.
+
+## Probar primero
+
+Hay una práctica que lleva las pruebas un paso más allá: escribir la prueba **antes** que el código. Se llama **desarrollo guiado por pruebas** (*TDD*, por *test-driven development*) y sigue un ciclo corto (Beck, 2003):
+
+1. **Rojo**: escribe una prueba para algo que el código todavía no hace. Ejecútala y mira cómo falla.
+2. **Verde**: escribe el código mínimo para que pase.
+3. **Refactoriza**: mejora el código con la prueba como red de seguridad (capítulo 6).
+
+No hace falta usar TDD siempre. Pero pruébalo con una historia pequeña: escribir la prueba primero obliga a decidir exactamente qué debe hacer la función antes de pensar cómo, y los criterios de aceptación de la historia (capítulo 3) se convierten casi directamente en pruebas.
+
+::: {.callout-warning .error title="Errores que vi como ayudante"}
+**1. Pruebas que dependen del orden o de datos reales.** Una prueba usa la base de datos real y pasa solo si antes se ejecutó otra que agregó un producto. Un día alguien ejecuta una sola prueba y falla sin razón aparente. *Cómo evitarlo:* cada prueba prepara sus propios datos con una fixture.
+
+**2. Pruebas que no comprueban nada.** La prueba llama a la función y no tiene ningún `assert`, o comprueba algo que siempre es verdadero. Pasa siempre, incluso si el código está roto. *Cómo detectarlo:* rompe el código a propósito (cambia un `>` por `>=`) y comprueba que alguna prueba falle. Si ninguna falla, tus pruebas no protegen esa línea.
+
+**3. Comentar la prueba que falla.** «La desactivo un rato para poder entregar.» Una prueba que falla es información: o el código tiene un error, o la prueba quedó desactualizada porque cambió un requisito. *Cómo evitarlo:* corrige una de las dos cosas y deja escrito en el commit cuál fue.
+:::
+
+::: {.callout-tip .consejo title="Consejo de ayudante"}
+Cuando alguien reporte un error, antes de corregirlo escribe una prueba que lo reproduzca y comprueba que falla. Después corrige el código hasta que pase. Así ese error no vuelve nunca, y la prueba documenta un caso que el equipo no había pensado.
+:::
+
+## Retos
+
+::: {.callout-note .reto-basico title="Reto 7.1 · Básico · autocorregible"}
+Convierte en pruebas de pytest los `assert` del archivo `test_mitienda.py` del Libro 1 y ejecútalos con `pytest -v`. Después, rompe a propósito `calcular_descuento` y confirma que al menos una prueba falla.
+:::
+
+::: {.callout-note .reto-intermedio title="Reto 7.2 · Intermedio"}
+Escribe una prueba parametrizada para la función `convertir_precio` del reto 9.2 del Libro 1 con al menos seis casos, incluyendo textos inválidos. Mide la cobertura del módulo y agrega casos hasta que todas sus líneas estén cubiertas.
+:::
+
+::: {.callout-note .reto-desafio title="Reto 7.3 · Desafío · en equipo"}
+Elijan una historia pendiente de su proyecto y desarrollen con TDD: una persona escribe las pruebas a partir de los criterios de aceptación y otra escribe el código para que pasen, sin hablar entre ellas más que a través de las pruebas. Al final, comenten: ¿las pruebas eran suficientes para entender qué había que programar?
+:::
+
+::: {.callout-important .ia title="IA con criterio"}
+**Pídele casos, no pruebas terminadas.**
+
+*«Esta es la función registrar_venta y sus criterios de aceptación. Enumera casos de prueba que podrían hacerla fallar, en especial casos límite y combinaciones de errores. Solo la lista, sin código.»*
+
+**Verifica la respuesta:** escribe tú las pruebas de los casos que te parezcan valiosos. Si le pides las pruebas completas, revisa con atención el valor esperado de cada `assert`: una IA puede escribir pruebas que verifican lo que el código hace **ahora**, con errores incluidos, en lugar de lo que **debería** hacer. Una prueba así pasa siempre y no protege nada.
+:::
+
+## Avance de MiTienda v2: la red de seguridad
+
+MiTienda tiene ahora 19 pruebas en tres archivos, una por capa: reglas, datos e interfaz. La Definición de Terminado del capítulo 4 cambia su segunda casilla de «deseable» a obligatoria:
+
+```text
+[x] Tiene pruebas automáticas que pasan.
+    Toda historia nueva agrega al menos una prueba de su caso
+    normal y una de su caso de error.
+```
+
+Todavía falta algo: las pruebas solo sirven si alguien las ejecuta. Hoy dependen de que cada integrante se acuerde de escribir `pytest` antes de abrir un pull request. En el capítulo 9 eso lo hará GitHub automáticamente.
+
+::: {.callout-note .resumen title="Resumen"}
+- Las pruebas automatizadas se escriben una vez y protegen el código en cada cambio.
+- pytest encuentra los archivos y funciones `test_*` y muestra los valores reales cuando un `assert` falla.
+- `parametrize` prueba muchos casos con una función; `pytest.raises` comprueba los errores esperados.
+- Las fixtures preparan datos nuevos y aislados para cada prueba.
+- La cobertura señala código sin probar, pero no mide la calidad de las pruebas.
+:::
+
+::: {.callout-note title="Código QR"}
+![](img/qr_pendiente.png){width=15%} Pruebas completas de MiTienda v2
+:::

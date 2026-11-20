@@ -1,0 +1,16 @@
+# Anexo B. Código completo de MiTienda v1.0 {.unnumbered}
+
+Este es el programa del capítulo 10, tal como está en el repositorio del libro (`mitienda/v1/mitienda.py`). El texto de este anexo se genera directamente desde ese archivo cada vez que se compila el libro, así que el código impreso y el del repositorio son siempre el mismo.
+
+```{python}
+#| echo: false
+#| output: asis
+codigo = open("../mitienda/v1/mitienda.py", encoding="utf-8").read()
+print("```python\n" + codigo + "\n```")
+```
+
+Las pruebas están en `mitienda/v1/test_mitienda.py`. Para ejecutarlas, desde la carpeta `mitienda/v1`:
+
+```{.bash .terminal}
+python test_mitienda.py
+```

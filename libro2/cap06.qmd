@@ -1,0 +1,209 @@
+# Código limpio y refactorización {#sec-cap6}
+
+::: {.callout-note .objetivos title="Al terminar este capítulo podrás"}
+- Aplicar las convenciones de estilo de Python con ayuda de herramientas automáticas.
+- Reconocer señales de código difícil de mantener: nombres pobres, números mágicos, duplicación.
+- Refactorizar en pasos pequeños sin cambiar lo que hace el programa.
+:::
+
+::: {.callout-note .problema title="Problema de inicio"}
+Carla revisa el pull request de Luis y encuentra esta línea: `if s > 200: d = 10`. Funciona. Las pruebas pasan. ¿Lo aprueba? ¿Qué le diría a Luis, si lo que importa es que el programa funcione?
+:::
+
+## El código se lee más de lo que se escribe
+
+La guía de estilo de Python lo dice en una de sus primeras secciones: el código se lee mucho más a menudo de lo que se escribe (van Rossum et al., 2001). Luis escribió esa línea una vez; Carla, Ana y él mismo dentro de un mes la van a leer decenas de veces. Cada lectura cuesta segundos de «¿qué era `s`?», y esos segundos se acumulan en un proyecto de equipo.
+
+**Código limpio** es código que otra persona puede entender y modificar sin miedo. No es un estándar oficial, sino un conjunto de hábitos que la industria comparte y que libros como el de Martin (2008) popularizaron. Este capítulo se concentra en los que más impacto tienen en un proyecto de estudiantes.
+
+## Estilo: que lo haga la máquina
+
+Discutir en una revisión si van dos líneas en blanco entre funciones o si la coma lleva espacio es tiempo perdido. Esas decisiones ya las tomó la comunidad en el PEP 8, la guía de estilo oficial, y hoy una herramienta las aplica automáticamente.
+
+**Ruff** es un analizador y formateador de código Python que reúne en un solo programa lo que antes requería varios. Se instala con `pip install ruff` y tiene dos comandos:
+
+```{.bash .terminal}
+ruff format .     # reescribe el formato de todos los archivos
+ruff check .      # busca problemas y los informa
+```
+
+`ruff format` no pregunta: deja el código con un formato uniforme (sangrías, espacios, comillas, largo de línea). `ruff check` es un **linter**: lee el código sin ejecutarlo y señala errores probables y malas prácticas. Esto es lo que encontró al revisar MiTienda v1.0 del Libro 1 con un conjunto de reglas ampliado:
+
+```{.text .salida}
+PLR2004 Magic value used in comparison, consider replacing `200` with a constant variable
+  --> mitienda.py:17:19
+   |
+15 | def calcular_descuento(subtotal):
+16 |     """Porcentaje de descuento según el subtotal de la compra."""
+17 |     if subtotal > 200:
+   |                   ^^^
+18 |         return 10
+19 |     elif subtotal > 100:
+   |
+```
+
+Cada aviso tiene un **código** (`PLR2004`), una descripción y la línea exacta. Esta regla en particular señala los **números mágicos**, que veremos enseguida. Las reglas se eligen en `pyproject.toml`, el archivo de configuración del proyecto:
+
+```{.toml}
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "B", "UP"]
+# N818 pide que las excepciones terminen en "Error"; usamos nombres en español.
+ignore = ["N818"]
+```
+
+Observa el `ignore`: una regla de nombres pedía llamar `VentaError` a la excepción `ErrorDeVenta`. El equipo decidió desactivarla y **dejó escrito por qué**. Las herramientas sirven al equipo, no al revés; lo importante es que la decisión sea explícita y no un aviso que todos aprendieron a ignorar.
+
+::: {.callout-tip .consejo title="Consejo de ayudante"}
+Instala la extensión de Ruff en VS Code y activa «formatear al guardar» (*Format on Save*). El código se ordena cada vez que guardas y los avisos aparecen subrayados mientras escribes, antes de que nadie los vea en una revisión.
+:::
+
+## Señales de código difícil de mantener
+
+### Nombres que no dicen nada
+
+`s`, `d`, `aux`, `lista2`, `hacer_cosas()`. Un buen nombre responde a «¿qué es esto?» sin tener que leer el código que lo rodea. Compara:
+
+```{.python}
+if s > 200: d = 10                        # ¿qué es s? ¿y d?
+
+if subtotal > UMBRAL_DESCUENTO_ALTO:      # se explica solo
+    porcentaje = DESCUENTO_ALTO
+```
+
+El nombre largo cuesta un segundo al escribir y ahorra minutos al leer. Con el autocompletado del editor, ni siquiera cuesta ese segundo.
+
+### Números mágicos
+
+Un **número mágico** es un valor literal cuyo significado no es evidente: `200`, `10`, `0.13`. Tiene dos problemas: no explica qué representa y, si aparece en varios lugares, un cambio obliga a buscarlos todos (y siempre se escapa uno). La solución es darle un nombre con una constante, como hizo el equipo en `reglas.py` en el capítulo 5.
+
+### Duplicación
+
+Si el mismo bloque aparece dos veces, cuando haya que corregirlo se corregirá en un solo lugar. El principio se resume como **DRY**: *don't repeat yourself*, no te repitas. La herramienta para eliminar la duplicación ya la conoces: extraer una función.
+
+### Funciones que hacen demasiado
+
+Una función de 60 líneas que pide datos, valida, calcula, guarda e imprime no se puede probar por partes ni reutilizar. Señales de alerta: necesitas la palabra «y» para describirla («registra la venta **y** actualiza el stock **y** imprime el ticket»), o tiene más de tres niveles de sangría.
+
+### Comentarios que explican lo que el código debería decir
+
+```{.python}
+# calcula el total con descuento
+t = s * (1 - d / 100)
+```
+
+Si el código necesita un comentario para entenderse, primero intenta mejorar los nombres: `total = aplicar_descuento(subtotal, porcentaje)` no necesita comentario. Los comentarios valiosos explican **por qué**, no qué: «el descuento se reparte entre las líneas para que el reporte por producto cuadre con el total».
+
+## Refactorizar
+
+**Refactorizar** es cambiar la estructura interna del código **sin cambiar lo que hace** (Fowler, 2018). Renombrar una variable, extraer una función, reemplazar un número por una constante: el usuario no nota nada, pero el código queda más fácil de entender y de cambiar.
+
+La palabra clave es *sin cambiar lo que hace*. ¿Cómo sabes que no cambiaste nada? Con pruebas. Por eso la refactorización segura sigue un ciclo corto:
+
+1. Asegúrate de que las pruebas pasan **antes** de empezar.
+2. Haz **un** cambio pequeño.
+3. Ejecuta las pruebas.
+4. Si pasan, haz commit. Si fallan, deshaz el cambio y prueba con un paso más pequeño.
+
+Cada vuelta dura minutos. Si algo se rompe, sabes exactamente qué paso lo rompió, y `git restore` te devuelve al último estado bueno.
+
+### Un ejemplo: el menú de MiTienda
+
+El menú de la versión 1 era una cadena de `if`/`elif` que crecía con cada opción:
+
+```{.python}
+if opcion == "1":
+    registrar_venta()
+elif opcion == "2":
+    mostrar_catalogo()
+elif opcion == "3":
+    mostrar_reporte()
+# ... y dos opciones más en v2
+```
+
+Cada opción nueva obligaba a tocar dos lugares: el texto del menú y la cadena de `elif`. En la versión 2, el menú es un **diccionario** que asocia cada tecla con su texto y su función:
+
+```{.python}
+OPCIONES = {
+    "1": ("Registrar venta", opcion_vender),
+    "2": ("Ver catálogo y stock", opcion_catalogo),
+    "3": ("Reporte del día", opcion_reporte),
+    "4": ("Anular venta", opcion_anular),
+    "5": ("Exportar ventas del mes", opcion_exportar),
+}
+
+for clave, (texto, _) in OPCIONES.items():
+    print(f"{clave}. {texto}")
+...
+if opcion in OPCIONES:
+    OPCIONES[opcion][1](con)
+```
+
+Las funciones se guardan en el diccionario **sin paréntesis**, como valores; `OPCIONES[opcion][1]` obtiene la función y `(con)` la llama. Agregar una opción ahora es agregar una línea. El usuario ve exactamente el mismo menú: eso es una refactorización.
+
+::: {.callout-warning .error title="Errores que vi como ayudante"}
+**1. Refactorizar y agregar funcionalidad en el mismo pull request.** El PR dice «Agrega reporte de stock» y trae 400 líneas cambiadas, porque «de paso» se renombraron variables en todo el proyecto. Nadie puede revisarlo bien y, si algo falla, no se sabe qué lo causó. *Cómo evitarlo:* un PR para refactorizar, otro para la funcionalidad.
+
+**2. Formatear todo el proyecto en medio de un sprint.** Alguien ejecuta `ruff format .` por primera vez en su rama y cambia el formato de 30 archivos. Todos los demás pull requests abiertos quedan con conflictos. *Cómo evitarlo:* el formateo inicial se hace una vez, en un PR propio, con todos de acuerdo; desde ahí, cada uno formatea al guardar.
+
+**3. Refactorizar sin pruebas.** «Solo cambié nombres, no puede romper nada.» Hasta que un nombre que se usaba en otro módulo quedó sin cambiar. *Cómo evitarlo:* si no hay pruebas, la primera tarea de la refactorización es escribirlas (capítulo 7).
+:::
+
+## Retos
+
+::: {.callout-note .reto-basico title="Reto 6.1 · Básico"}
+Instala Ruff y ejecuta `ruff check` sobre un programa tuyo del semestre pasado. Elige tres avisos distintos, busca su código en la documentación de Ruff y explica con tus palabras por qué la regla existe.
+:::
+
+::: {.callout-note .reto-intermedio title="Reto 6.2 · Intermedio"}
+Refactoriza este fragmento sin cambiar lo que hace: mejora los nombres, elimina el número mágico y extrae una función. Escribe primero dos `assert` que comprueben el resultado y ejecútalos después de cada paso.
+
+```{.python}
+def f(l):
+    t = 0
+    for x in l:
+        if x[1] < 10:
+            t = t + 1
+    return t
+```
+:::
+
+::: {.callout-note .reto-desafio title="Reto 6.3 · Desafío · en equipo"}
+Cada integrante elige la función más larga que escribió en el proyecto y la refactoriza en una rama propia, siguiendo el ciclo de cuatro pasos y con un commit por paso. Otro integrante revisa el pull request leyendo **los commits uno por uno**. ¿Fue más fácil revisar así que un solo cambio grande?
+:::
+
+::: {.callout-important .ia title="IA con criterio"}
+**Pídele refactorizaciones de a una, con su justificación.**
+
+*«Propón la refactorización más importante para esta función, solo una, explicando qué señal de código difícil de mantener resuelve. No cambies el comportamiento.»*
+
+**Verifica la respuesta:** ejecuta las pruebas antes y después del cambio sugerido. Las IA a veces «mejoran» el código cambiando su comportamiento en casos límite (un `>` que se vuelve `>=`, por ejemplo). Si no hay pruebas que cubran ese caso, no te vas a enterar. En los estudios sobre revisión de código, encontrar defectos resultó ser solo una parte de lo que se obtiene: también se transfiere conocimiento y se comparten las decisiones del equipo (Bacchelli y Bird, 2013). Una sugerencia que no entiendes no aporta ninguna de las dos cosas.
+:::
+
+## Avance de MiTienda v2: limpieza antes de crecer
+
+Antes de agregar las historias del segundo sprint, el equipo dedica un pull request solo a limpiar. Así se ve su registro de commits, con un commit por paso (los identificadores cambian en cada repositorio):
+
+```{.text .salida}
+$ git log --oneline
+a41c9d2 Reemplaza la cadena de elif del menú por el diccionario OPCIONES
+7be20f1 Extrae pedir_entero() a cli.py
+3f0e6aa Reemplaza números mágicos por constantes en reglas.py
+c95d1b4 Configura ruff y formatea todo el proyecto
+```
+
+Al final de cada commit, las pruebas pasaban. La revisión de Carla fue rápida, porque cada commit tenía un solo propósito y un mensaje que lo explicaba.
+
+::: {.callout-note .resumen title="Resumen"}
+- El código se lee mucho más de lo que se escribe: optimiza para quien lo lee.
+- Deja el estilo a las herramientas: `ruff format` para el formato y `ruff check` para los problemas.
+- Señales de alerta: nombres pobres, números mágicos, duplicación, funciones que hacen demasiado y comentarios que reemplazan buenos nombres.
+- Refactorizar es mejorar la estructura sin cambiar el comportamiento, en pasos pequeños y con pruebas.
+- Un pull request, un propósito: no mezcles refactorización con funcionalidad nueva.
+:::
+
+::: {.callout-note title="Código QR"}
+![](img/qr_pendiente.png){width=15%} Configuración de Ruff y ejemplo de refactorización paso a paso
+:::

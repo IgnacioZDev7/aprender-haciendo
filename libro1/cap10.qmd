@@ -1,0 +1,220 @@
+# Proyecto final: MiTienda v1.0 {#sec-cap10}
+
+::: {.callout-note .objetivos title="Al terminar este capítulo podrás"}
+- Integrar en un solo programa todo lo aprendido en el libro.
+- Organizar un proyecto en secciones, con pruebas y un archivo de instrucciones.
+- Revisar tu programa con una lista de verificación antes de entregarlo.
+:::
+
+::: {.callout-note .problema title="Problema de inicio"}
+Doña Rosa ya no quiere un programa «de práctica». Quiere usarlo todos los días: registrar ventas sin escribir precios, no perder nada si se corta la luz, y que el viernes le diga cuánto vendió y qué producto se lleva más la gente. Tienes todas las piezas. ¿En qué orden las armas?
+:::
+
+## Del problema al plan
+
+Antes de escribir una línea, vuelve al capítulo 1: entradas, proceso y salidas. Esta es la especificación de MiTienda v1.0, escrita como la dictaría Doña Rosa y traducida a funciones:
+
+| Doña Rosa necesita… | El programa lo resuelve con… | Capítulo |
+|---|---|---|
+| Elegir qué hacer desde un menú | `main()` con un bucle `while` | 4 y 5 |
+| No escribir los precios | Catálogo en un diccionario | 7 |
+| Que el descuento se aplique solo | `calcular_descuento()` y `aplicar_descuento()` | 4 y 6 |
+| Que no se caiga si se equivoca al escribir | `pedir_entero()` con `try`/`except` | 9 |
+| No perder ventas | `guardar_venta()` en un CSV con modo `"a"` | 8 |
+| Saber cuánto vendió y qué se vende más | `ventas_por_producto()` y `producto_mas_vendido()` | 7 |
+
+: Requisitos de MiTienda v1.0 y dónde aprendiste cada pieza {tbl-colwidths="[36,40,24]"}
+
+Nada de esta tabla es nuevo. El trabajo del proyecto final no es aprender otra instrucción, sino **combinar** las que ya conoces de forma ordenada.
+
+## La estructura del programa
+
+El archivo `mitienda.py` se organiza en cuatro secciones, de lo más «puro» a lo más conversador:
+
+1. **Constantes**: el nombre del archivo de ventas y el catálogo.
+2. **Cálculos**: funciones que reciben datos y devuelven resultados, sin `input()` ni `print()`. Son las que se prueban con `assert`.
+3. **Archivo**: guardar y leer ventas.
+4. **Conversación**: menú, pedidos de datos y reportes en pantalla. Al final, `main()`.
+
+Esta separación tiene un nombre que vas a escuchar mucho en el Libro 2: **separar la lógica de la interfaz**. Si mañana MiTienda tiene una pantalla con botones en lugar de la consola, solo cambia la cuarta sección.
+
+### La pieza nueva: el reporte
+
+Lo único que no viste armado en capítulos anteriores es el reporte. Cuenta las unidades vendidas de cada producto con un diccionario que funciona como **contador por clave**, la misma idea del reto 7.2:
+
+```{python}
+def ventas_por_producto(filas):
+    """Recibe filas [fecha, producto, cantidad, importe] y devuelve
+    un diccionario {producto: unidades vendidas}."""
+    unidades = {}
+    for fila in filas:
+        producto, cantidad = fila[1], int(fila[2])
+        unidades[producto] = unidades.get(producto, 0) + cantidad
+    return unidades
+
+def producto_mas_vendido(unidades):
+    """Producto con más unidades vendidas, o None si no hay ventas."""
+    if not unidades:
+        return None
+    return max(unidades, key=unidades.get)
+
+filas = [
+    ["2026-11-16 09:00", "pan", "10", "5.0"],
+    ["2026-11-16 09:05", "queso", "3", "128.25"],
+    ["2026-11-16 10:00", "pan", "4", "2.0"],
+]
+unidades = ventas_por_producto(filas)
+print(unidades)
+print(producto_mas_vendido(unidades))
+```
+
+`unidades.get(producto, 0)` devuelve las unidades acumuladas hasta ahora, o 0 si el producto aparece por primera vez. `max(unidades, key=unidades.get)` busca la **clave** cuyo **valor** es el mayor. Si esa línea te parece mágica, reemplázala por un bucle que recuerde el mejor producto visto hasta el momento: es un buen ejercicio y el resultado es el mismo.
+
+### Arrancar el programa: `if __name__ == "__main__"`
+
+La última línea del archivo es nueva:
+
+```{.python}
+if __name__ == "__main__":
+    main()
+```
+
+Significa: «ejecuta `main()` solo si este archivo se ejecutó directamente». Cuando otro archivo hace `import mitienda`, por ejemplo el de pruebas, Python carga las funciones **sin** arrancar el menú. Sin esta línea, las pruebas se quedarían esperando que alguien elija una opción.
+
+## MiTienda v1.0 en funcionamiento
+
+Esta es una sesión real con el programa. Observa cómo se comporta ante un producto inexistente y una cantidad escrita con letras:
+
+```{.text .salida}
+=== MiTienda v1.0 ===
+1. Registrar venta
+2. Ver catálogo
+3. Reporte de ventas
+4. Salir
+Elige una opción: 1
+Producto (vacío para cerrar): Queso
+Cantidad: 3
+Producto (vacío para cerrar): fideo
+'fideo' no está en el catálogo
+Producto (vacío para cerrar): pan
+Cantidad: diez
+Escribe un número entero, por ejemplo 3
+Cantidad: 10
+Producto (vacío para cerrar):
+Subtotal: 140.00  Descuento: 5 %
+Total a pagar: 133.00
+=== MiTienda v1.0 ===
+1. Registrar venta
+2. Ver catálogo
+3. Reporte de ventas
+4. Salir
+Elige una opción: 3
+--- Reporte ---
+Líneas de venta registradas: 2
+Total vendido: 133.00
+  pan        10 u.
+  queso       3 u.
+Producto más vendido: pan
+=== MiTienda v1.0 ===
+1. Registrar venta
+2. Ver catálogo
+3. Reporte de ventas
+4. Salir
+Elige una opción: 4
+Hasta pronto
+```
+
+El código completo, unas 150 líneas comentadas, está en el Anexo B y en el repositorio del libro.
+
+## Pruebas del proyecto
+
+Las pruebas viven en un archivo aparte, `test_mitienda.py`, que importa el programa y comprueba las funciones de cálculo:
+
+```python
+import mitienda
+
+def test_descuento_fronteras():
+    assert mitienda.calcular_descuento(100) == 0
+    assert mitienda.calcular_descuento(100.01) == 5
+    assert mitienda.calcular_descuento(200) == 5
+    assert mitienda.calcular_descuento(200.01) == 10
+
+def test_reporte():
+    filas = [
+        ["2026-11-16 09:00", "pan", "10", "5.0"],
+        ["2026-11-16 09:05", "queso", "3", "128.25"],
+        ["2026-11-16 10:00", "pan", "4", "2.0"],
+    ]
+    unidades = mitienda.ventas_por_producto(filas)
+    assert unidades == {"pan": 14, "queso": 3}
+    assert mitienda.producto_mas_vendido(unidades) == "pan"
+    assert mitienda.total_vendido(filas) == 135.25
+```
+
+Cada función de prueba empieza con `test_` y agrupa casos relacionados. Las pruebas usan filas escritas a mano, no el archivo real de ventas: así no dependen de lo que Doña Rosa vendió hoy y dan siempre el mismo resultado. En el Libro 2 vas a ejecutar estas mismas pruebas con pytest, que las encuentra solas por su nombre.
+
+## Lista de verificación antes de entregar
+
+Antes de dar por terminado un proyecto, de esta materia o de cualquier otra, recórrelo con esta lista. La armé con los problemas que más veces vi en entregas finales:
+
+| ✓ | Verificación |
+|---|---|
+| ☐ | El programa arranca en una computadora **distinta** a la tuya, en una carpeta nueva. |
+| ☐ | Probaste cada opción del menú, incluida una opción inválida. |
+| ☐ | Probaste datos erróneos: letras en lugar de números, valores negativos, campos vacíos. |
+| ☐ | Las pruebas automáticas pasan. |
+| ☐ | Ninguna función tiene más de unas 25 líneas; si alguna las tiene, considera dividirla. |
+| ☐ | Los nombres de variables y funciones dicen lo que son. No hay `x`, `aux2` ni `funcion1`. |
+| ☐ | No quedan `print("DEBUG…")` ni código comentado «por si acaso». |
+| ☐ | Hay un archivo `LEEME.md` que explica qué hace el programa y cómo ejecutarlo. |
+| ☐ | Declaraste si usaste IA y para qué. |
+
+: Lista de verificación del proyecto final {tbl-colwidths="[8,92]"}
+
+::: {.callout-tip .consejo title="Consejo de ayudante"}
+El punto «en una computadora distinta» es el que más se salta y el que más sorpresas da: rutas de archivos que solo existen en tu máquina, una librería que instalaste hace meses y olvidaste, un archivo de datos que no copiaste. Pídele a un compañero que descargue tu proyecto y lo ejecute siguiendo **solo** tu `LEEME.md`, sin que le expliques nada.
+:::
+
+::: {.callout-warning .error title="Errores que vi como ayudante"}
+Los veinte errores numerados de este libro están reunidos en el Anexo A. En los proyectos finales, sin embargo, el error más común no está en el código: es **empezar a programar todo de una vez** y probar al final. Cuando falla, hay 150 líneas sospechosas. Construye por partes, como lo hiciste capítulo a capítulo: una función, su prueba, la siguiente. Si algo se rompe, sabes que fue lo último que agregaste.
+:::
+
+## Retos del proyecto
+
+::: {.callout-note .reto-basico title="Reto 10.1 · Básico"}
+Agrega un producto al catálogo y una opción de menú «5. Ventas de hoy» que muestre solo las líneas cuya fecha empieza con la fecha actual. Pista: `datetime.now().strftime("%Y-%m-%d")` y el método `startswith()`.
+:::
+
+::: {.callout-note .reto-intermedio title="Reto 10.2 · Intermedio · autocorregible"}
+Escribe la función `ingreso_por_producto(filas)`, que devuelva un diccionario `{producto: importe total}`, y agrégala al reporte. Escribe primero su prueba en `test_mitienda.py`, con las mismas tres filas del ejemplo; el resultado esperado para el pan es `7.0`.
+:::
+
+::: {.callout-note .reto-desafio title="Reto 10.3 · Desafío"}
+Haz que el catálogo se cargue desde `catalogo.csv` (como en el reto 8.3) y agrega una opción para cambiar el precio de un producto, que actualice el archivo. Antes de programar, escribe en papel qué debe pasar si el archivo no existe, si un precio es inválido y si Doña Rosa escribe un producto que no está.
+:::
+
+::: {.callout-important .ia title="IA con criterio"}
+**Usa la IA como revisora de tu entrega, no como autora.** Con tu proyecto terminado:
+
+*«Revisa este programa como lo haría un docente con esta lista de verificación: [pega la tabla]. Señala qué puntos no cumplo y por qué, sin reescribir el código.»*
+
+**Verifica la respuesta:** comprueba cada observación ejecutando el programa. Y en tu `LEEME.md`, declara cómo la usaste: «Usé un asistente de IA para revisar mi código contra la lista de verificación; las correcciones las hice yo». Es lo mismo que hice yo al escribir este libro.
+:::
+
+## Lo que sigue
+
+Llegaste al final del Libro 1. Empezaste escribiendo un algoritmo en pseudocódigo para calcular un vuelto y terminaste con un programa que una tienda podría usar. Por el camino aprendiste lo que diferencia a quien avanza de quien se estanca: descomponer problemas, probar las fronteras, leer los errores y depurar con método.
+
+MiTienda v1.0 funciona, pero todavía es un programa de una persona. ¿Qué pasa cuando tres compañeros quieren mejorarlo a la vez? ¿Cómo se vuelve atrás si un cambio lo rompe? ¿Cómo se decide qué construir primero? Esas preguntas son el punto de partida del Libro 2, *Del programa al producto*, que empieza exactamente con este código.
+
+::: {.callout-note .resumen title="Resumen"}
+- Un proyecto se planifica antes de programar: requisitos, piezas y orden de construcción.
+- Separa constantes, cálculos, archivo y conversación; los cálculos sin `input` ni `print` se prueban fácilmente.
+- `if __name__ == "__main__":` permite importar el programa sin ejecutarlo.
+- Las pruebas usan datos fijos escritos a mano, no los datos reales.
+- Antes de entregar, prueba en otra computadora y recorre la lista de verificación.
+:::
+
+::: {.callout-note title="Código QR"}
+![](img/qr_pendiente.png){width=15%} Repositorio de MiTienda v1.0
+:::

@@ -1,0 +1,59 @@
+project:
+  type: book
+  output-dir: _book
+
+book:
+  title: "Del programa al producto"
+  subtitle: "Desarrollo de software paso a paso"
+  author: "Ignacio Zárate"
+  date: last-modified
+  date-format: "MMMM YYYY"
+  language: es
+  cover-image: img/portada-libro2.png
+  repo-url: https://github.com/IgnacioZDev7/aprender-haciendo
+  repo-subdir: libro2
+  repo-actions: [source, issue]
+  downloads: [pdf]
+  chapters:
+    - index.qmd
+    - prologo.qmd
+    - cap00.qmd
+    - cap01.qmd
+    - cap02.qmd
+    - cap03.qmd
+    - cap04.qmd
+    - cap05.qmd
+    - cap06.qmd
+    - cap07.qmd
+    - cap08.qmd
+    - cap09.qmd
+    - cap10.qmd
+    - referencias.qmd
+  appendices:
+    - anexo-a.qmd
+
+lang: es
+filters:
+  - ../comun/cajas.lua
+
+format:
+  html:
+    theme: cosmo
+    css: estilos.css
+    code-copy: true
+    toc-title: "En este capítulo"
+  typst:
+    papersize: a5
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    cover-typst: img/portada-libro2.png
+    template-partials:
+      - ../comun/typst-show.typ
+    include-in-header:
+      - file: ../comun/estilo.typ
+
+execute:
+  echo: true
+  error: false
+  freeze: auto

@@ -1,0 +1,206 @@
+# Primeros pasos en Python {#sec-cap2}
+
+::: {.callout-note .objetivos title="Al terminar este capítulo podrás"}
+- Instalar Python y ejecutar un programa desde un archivo.
+- Usar variables y reconocer los tipos de datos básicos: `int`, `float`, `str` y `bool`.
+- Pedir datos al usuario con `input()` y mostrar resultados con `print()`.
+- Leer los primeros mensajes de error sin entrar en pánico.
+:::
+
+::: {.callout-note .problema title="Problema de inicio"}
+Doña Rosa quiere que la computadora le pregunte el nombre de un producto y su precio, y que luego le muestre una línea como esta: `Pan: 0.50`. Parece fácil. ¿Qué tiene que saber hacer un programa para lograrlo?
+:::
+
+## Instalar Python
+
+Python es un lenguaje gratuito. Lo descargas desde su sitio oficial, python.org, en la sección *Downloads*. Este libro usa Python 3.12 o superior.
+
+- **Windows:** al instalar, marca la casilla *Add python.exe to PATH*. Es el olvido más común y provoca que el comando `python` no funcione después.
+- **macOS y Linux:** es probable que ya tengas una versión instalada. Comprueba cuál es abriendo una terminal y escribiendo `python3 --version`.
+
+Para escribir tus programas te recomiendo un editor como Visual Studio Code o Thonny. Thonny está pensado para principiantes y muestra el valor de las variables mientras el programa se ejecuta.
+
+Si en algún momento quieres otra explicación de los mismos temas, te recomiendo el tutorial oficial de Python en español (Python Software Foundation, s. f.-a) y tres libros con enfoque práctico: Downey (2024), Matthes (2023) y Sweigart (2025).
+
+## Tu primer programa
+
+Crea un archivo llamado `hola.py`, escribe esta línea y ejecútalo:
+
+```{python}
+print("Hola, MiTienda")
+```
+
+`print()` es una **función**: un bloque de código que ya existe y que puedes usar escribiendo su nombre y, entre paréntesis, los datos que necesita. En este caso le pasas un texto y lo muestra en pantalla. Los textos van entre comillas, dobles o simples.
+
+## Variables: ponerle nombre a un dato
+
+Una **variable** es un nombre que apunta a un valor guardado en la memoria. En el capítulo 1 usamos la flecha `<-`; en Python se usa el signo `=`, que se llama **asignación**:
+
+```{python}
+producto = "Pan"
+precio = 0.50
+cantidad = 3
+print(producto, precio, cantidad)
+```
+
+La asignación se lee de derecha a izquierda: primero se calcula el valor de la derecha y después se guarda en el nombre de la izquierda. Por eso esta línea, que en matemáticas sería absurda, en programación es perfectamente válida:
+
+```{python}
+cantidad = 3
+cantidad = cantidad + 1
+print(cantidad)
+```
+
+Para elegir nombres, sigue estas reglas. Las dos primeras son obligatorias; la tercera es la convención de estilo de Python, llamada PEP 8 (van Rossum et al., 2001):
+
+- Solo letras, números y guion bajo, y no pueden empezar con un número: `precio1` es válido, `1precio` no.
+- Python distingue mayúsculas de minúsculas: `Precio` y `precio` son dos variables distintas.
+- Usa minúsculas y separa las palabras con guion bajo: `precio_unitario`, no `PrecioUnitario` ni `pu`.
+
+## Tipos de datos
+
+Cada valor tiene un **tipo**, que define qué se puede hacer con él. La función `type()` te dice el tipo de cualquier valor:
+
+| Tipo | Ejemplos | Para qué se usa |
+|---|---|---|
+| `int` | `3`, `-10`, `0` | Números enteros: cantidades, edades, contadores. |
+| `float` | `0.50`, `6.0`, `-2.75` | Números con decimales: precios, promedios. |
+| `str` | `"Pan"`, `'123'` | Texto. Ojo: `'123'` es texto, no un número. |
+| `bool` | `True`, `False` | Valores lógicos: sí o no. Los usarás en el capítulo 4. |
+
+: Tipos de datos básicos de Python {tbl-colwidths="[16,30,54]"}
+
+
+```{python}
+print(type(3))
+print(type(0.50))
+print(type("Pan"))
+print(type("3"))
+```
+
+La última línea es la más importante del capítulo. `"3"` entre comillas no es un número: es un texto que contiene el carácter 3. Esta diferencia provoca uno de los errores más frecuentes del primer semestre, como verás en un momento.
+
+## Pedir datos con input()
+
+La función `input()` muestra un mensaje, espera a que el usuario escriba algo y presione Enter, y devuelve lo que escribió. **Siempre lo devuelve como texto (`str`)**, aunque el usuario escriba un número (Python Software Foundation, s. f.-b). Si necesitas un número, tienes que convertirlo con `int()` o `float()`:
+
+```python
+nombre = input("Producto: ")
+precio = float(input("Precio: "))
+print(nombre, "cuesta", precio)
+```
+
+```{.text .salida}
+Producto: Leche
+Precio: 6
+Leche cuesta 6.0
+```
+
+Fíjate en la segunda línea: `input()` devuelve el texto `"6"` y `float()` lo convierte en el número `6.0`. Cuando una función está dentro de otra, Python ejecuta primero la de adentro.
+
+## Mostrar resultados con f-strings
+
+Para armar un texto con valores de variables, la forma más clara es una **f-string**: un texto con una `f` antes de las comillas, donde cada variable va entre llaves. Además, puedes indicar cuántos decimales mostrar con `:.2f`:
+
+```{python}
+producto = "Pan"
+precio = 0.5
+print(f"{producto}: {precio:.2f}")
+```
+
+Con esto ya resolviste el problema de inicio. Los **comentarios**, que empiezan con `#`, son notas para las personas: Python los ignora. Úsalos para explicar el porqué de una línea, no para repetir lo que ya dice el código.
+
+::: {.callout-warning .error title="Errores que vi como ayudante"}
+**1. Sumar un texto con un número.** Es el error más repetido de las primeras semanas:
+
+```{.python .error}
+cantidad = input("Cantidad: ")
+print(cantidad + 1)
+```
+
+```{.text .salida}
+TypeError: can only concatenate str (not "int") to str
+```
+
+*Por qué pasa:* `input()` devolvió el texto `"3"`, y Python no sabe sumar un texto con el número 1. *Solución:* convierte al leer: `cantidad = int(input("Cantidad: "))`.
+
+**2. Escribir mal el nombre de una variable.** Defines `precio` y después usas `Precio` o `preico`:
+
+```{.text .salida}
+NameError: name 'Precio' is not defined. Did you mean: 'precio'?
+```
+
+*Cómo leerlo:* el mensaje dice exactamente qué nombre no encontró y, en las versiones recientes de Python, hasta te sugiere el correcto. Lee la última línea del error primero: ahí está casi siempre la pista.
+
+**3. Olvidar cerrar comillas o paréntesis.** Python muestra un `SyntaxError` y señala con `^` el lugar donde se dio cuenta del problema, que a veces está una línea después del error real. Revisa también la línea anterior.
+:::
+
+::: {.callout-tip .consejo title="Consejo de ayudante"}
+Lee los errores de abajo hacia arriba. La última línea dice **qué** pasó (el tipo de error y su mensaje); las líneas de arriba dicen **dónde** pasó (archivo y número de línea). Los mensajes de error son difíciles para los principiantes incluso según la investigación (Becker et al., 2019), así que no te sientas mal si al principio no los entiendes: este libro te va a entrenar para leerlos.
+:::
+
+## Retos
+
+::: {.callout-note .reto-basico title="Reto 2.1 · Básico · autocorregible"}
+Escribe un programa que pida el nombre del cliente y lo salude así: `Bienvenido a MiTienda, Ana`.
+:::
+
+::: {.callout-note .reto-intermedio title="Reto 2.2 · Intermedio"}
+Pide el nombre de un producto, su precio y la cantidad. Muestra una línea como `3 x Pan = 1.50`, con el total siempre con dos decimales.
+:::
+
+::: {.callout-note .reto-desafio title="Reto 2.3 · Desafío"}
+Sin ejecutarlo, predice qué muestra este programa y por qué. Después ejecútalo y comprueba tu respuesta.
+
+```{python}
+a = "5"
+b = 5
+print(a * 3)
+print(b * 3)
+```
+:::
+
+::: {.callout-important .ia title="IA con criterio"}
+**Pídele que te explique el error, no que lo corrija.** Cuando te aparezca un mensaje de error, copia el mensaje completo y tu código, y escribe:
+
+*«Explícame con palabras simples qué significa este error y en qué línea está la causa. No me des el código corregido.»*
+
+**Verifica la respuesta:** corrige tú el código y vuelve a ejecutarlo. Si el error desaparece, la explicación era correcta. Si aparece otro, ¡felicidades!: avanzaste un paso. Las guías de UNESCO para el uso de IA generativa en educación insisten en que la persona debe mantener el control del proceso de aprendizaje (Miao y Holmes, 2023).
+:::
+
+## Avance de MiTienda (v0.2)
+
+Convertimos la primera parte del algoritmo del capítulo 1 en Python: pedir los datos de un producto y mostrarlos.
+
+```python
+# MiTienda v0.2: registrar un producto
+nombre = input("Producto: ")
+precio = float(input("Precio unitario: "))
+cantidad = int(input("Cantidad: "))
+
+print(f"Registrado: {cantidad} x {nombre} a {precio:.2f}")
+```
+
+```{.text .salida}
+Producto: Pan
+Precio unitario: 0.5
+Cantidad: 3
+Registrado: 3 x Pan a 0.50
+```
+
+Observa que el precio se convierte con `float()` porque puede tener decimales, y la cantidad con `int()` porque no se venden 2.5 panes. Elegir el tipo correcto es una decisión de diseño, no un detalle.
+
+::: {.callout-note title="Escanea"}
+![](img/qr_pythontutor.png){width=20%} Visualiza este programa paso a paso en Python Tutor (Guo, 2013): <https://pythontutor.com>
+:::
+
+::: {.callout-note .resumen title="Resumen"}
+- `print()` muestra datos; `input()` los pide y siempre devuelve texto.
+- Una variable es un nombre para un valor; `=` asigna de derecha a izquierda.
+- Los tipos básicos son `int`, `float`, `str` y `bool`; convierte con `int()` y `float()`.
+- Los errores se leen desde la última línea: tipo de error, mensaje y luego la ubicación.
+:::
+
+::: {.callout-note title="Código QR"}
+![](img/qr_pendiente.png){width=15%} Código y soluciones del capítulo 2
+:::

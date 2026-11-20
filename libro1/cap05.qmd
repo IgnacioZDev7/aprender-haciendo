@@ -1,0 +1,332 @@
+# Repetir sin repetirse {#sec-cap5}
+
+::: {.callout-note .objetivos title="Al terminar este capítulo podrás"}
+- Repetir instrucciones con `while` y con `for`.
+- Usar contadores, acumuladores y banderas.
+- Reconocer y evitar un bucle infinito.
+:::
+
+::: {.callout-note .problema title="Problema de inicio"}
+MiTienda v0.4 registra una venta y termina. Pero un cliente real compra pan, leche y queso en la misma visita, y Doña Rosa atiende a decenas de clientes por día. ¿Vas a copiar y pegar el mismo código cien veces? ¿Y si mañana llegan ciento uno?
+:::
+
+## La idea de repetir
+
+Copiar y pegar código tiene dos problemas. El primero es obvio: no sabes de antemano cuántas veces vas a necesitarlo. El segundo es más traicionero: si encuentras un error en el bloque copiado, tienes que corregirlo en cada copia, y siempre se escapa alguna.
+
+Los lenguajes de programación resuelven esto con los **bucles** (también llamados *ciclos* o *lazos*): instrucciones que ejecutan un bloque de código varias veces. Python tiene dos:
+
+- `while` («mientras»): repite **mientras** una condición sea verdadera. Lo usas cuando no sabes cuántas vueltas vas a dar.
+- `for` («para cada»): repite **una vez por cada elemento** de una secuencia. Lo usas cuando sabes sobre qué vas a recorrer.
+
+Cada repetición del bloque se llama **iteración**.
+
+## El bucle while
+
+Su estructura se parece a la de un `if`: una condición, dos puntos y un bloque indentado. La diferencia es que, al terminar el bloque, Python **vuelve a evaluar la condición**. Si sigue siendo verdadera, ejecuta el bloque otra vez.
+
+```python
+contador = 1
+while contador <= 3:
+    print(f"Atendiendo al cliente {contador}")
+    contador = contador + 1
+print("Tienda cerrada")
+```
+
+```{.text .salida}
+Atendiendo al cliente 1
+Atendiendo al cliente 2
+Atendiendo al cliente 3
+Tienda cerrada
+```
+
+Hagamos la prueba de escritorio del capítulo 1 para ver qué pasó realmente:
+
+| Iteración | `contador` antes | ¿`contador <= 3`? | Se imprime | `contador` después |
+|---|---|---|---|---|
+| 1 | 1 | Sí | Cliente 1 | 2 |
+| 2 | 2 | Sí | Cliente 2 | 3 |
+| 3 | 3 | Sí | Cliente 3 | 4 |
+| — | 4 | No | (sale del bucle) | — |
+
+: Prueba de escritorio del primer `while` {tbl-colwidths="[14,18,20,24,24]"}
+
+Fíjate en la última fila: la condición se evaluó **cuatro** veces, pero el bloque se ejecutó tres. Ese detalle es la fuente de muchos errores «por uno», que veremos más adelante.
+
+Todo `while` correcto tiene tres partes. Si falta una, el bucle falla:
+
+1. **Inicialización**: la variable de la condición tiene un valor antes de empezar (`contador = 1`).
+2. **Condición**: decide si se da otra vuelta (`contador <= 3`).
+3. **Actualización**: algo dentro del bloque cambia la variable (`contador = contador + 1`). Sin esto, la condición nunca deja de ser verdadera.
+
+::: {.callout-tip .consejo title="Consejo de ayudante"}
+Python permite abreviar `contador = contador + 1` como `contador += 1`. Lo mismo vale para `-=`, `*=` y `/=`. Usa la forma que te resulte más clara; el resultado es idéntico.
+:::
+
+## Contadores y acumuladores
+
+Dos patrones aparecen en casi todos los bucles. Conviene reconocerlos por su nombre:
+
+- Un **contador** suma una cantidad fija (normalmente 1) en cada iteración. Responde a «¿cuántos?».
+- Un **acumulador** suma una cantidad variable en cada iteración. Responde a «¿cuánto en total?».
+
+Ambos se **inicializan antes del bucle**, casi siempre en cero. Este programa pide los precios de una compra hasta que el cajero escribe 0:
+
+```python
+cantidad_productos = 0      # contador
+total = 0                   # acumulador
+
+precio = float(input("Precio (0 para terminar): "))
+while precio != 0:
+    cantidad_productos += 1
+    total += precio
+    precio = float(input("Precio (0 para terminar): "))
+
+print(f"Productos: {cantidad_productos}")
+print(f"Total: {total:.2f}")
+```
+
+```{.text .salida}
+Precio (0 para terminar): 3.5
+Precio (0 para terminar): 6
+Precio (0 para terminar): 45
+Precio (0 para terminar): 0
+Productos: 3
+Total: 54.50
+```
+
+Observa que el `input()` aparece dos veces: una antes del bucle (para tener el primer precio) y otra al final del bloque (para el siguiente). A ese valor especial que indica «ya terminé», el 0 en este caso, se le llama **valor centinela**. Debe ser un valor que nunca sea un dato real: ningún producto cuesta 0.
+
+## El bucle for y range()
+
+Cuando sabes cuántas veces quieres repetir, `for` es más corto y más seguro, porque el contador lo maneja Python:
+
+```python
+for numero in range(1, 4):
+    print(f"Atendiendo al cliente {numero}")
+```
+
+```{.text .salida}
+Atendiendo al cliente 1
+Atendiendo al cliente 2
+Atendiendo al cliente 3
+```
+
+`range(inicio, fin)` genera los números desde `inicio` **hasta `fin` sin incluirlo**. Por eso `range(1, 4)` produce 1, 2 y 3. Tiene tres formas:
+
+| Forma | Números que genera | Ejemplo |
+|---|---|---|
+| `range(fin)` | 0, 1, …, fin − 1 | `range(4)` → 0, 1, 2, 3 |
+| `range(inicio, fin)` | inicio, …, fin − 1 | `range(2, 5)` → 2, 3, 4 |
+| `range(inicio, fin, paso)` | de *paso* en *paso* | `range(0, 10, 3)` → 0, 3, 6, 9 |
+
+: Las tres formas de `range()` {tbl-colwidths="[30,30,40]"}
+
+`for` también recorre un texto letra por letra. En el capítulo 7 lo usarás para recorrer listas de productos, que es donde realmente brilla:
+
+```{python}
+for letra in "pan":
+    print(letra.upper())
+```
+
+Una tabla de multiplicar, útil para que Doña Rosa tenga a mano el precio de varias unidades:
+
+```{python}
+precio = 2.5
+for cantidad in range(1, 6):
+    print(f"{cantidad} x {precio} = {cantidad * precio:.2f}")
+```
+
+## Salir antes: banderas y break
+
+A veces quieres salir de un bucle en medio de una iteración, por ejemplo cuando el usuario elige «Salir» en un menú. Hay dos formas.
+
+Con una **bandera**: una variable booleana que indica si hay que seguir.
+
+```python
+seguir = True
+while seguir:
+    opcion = input("1. Vender  2. Salir: ")
+    if opcion == "1":
+        print("Registrando venta...")
+    elif opcion == "2":
+        seguir = False
+    else:
+        print("Opción no válida")
+print("Hasta pronto")
+```
+
+```{.text .salida}
+1. Vender  2. Salir: 1
+Registrando venta...
+1. Vender  2. Salir: 7
+Opción no válida
+1. Vender  2. Salir: 2
+Hasta pronto
+```
+
+Con `break`, que termina el bucle inmediatamente:
+
+```python
+while True:
+    opcion = input("1. Vender  2. Salir: ")
+    if opcion == "2":
+        break
+    print("Registrando venta...")
+print("Hasta pronto")
+```
+
+```{.text .salida}
+1. Vender  2. Salir: 1
+Registrando venta...
+1. Vender  2. Salir: 2
+Hasta pronto
+```
+
+`while True` es un bucle que, a propósito, sería infinito: la única salida es el `break`. Es un patrón muy común para menús. Las dos formas son correctas; la bandera suele ser más fácil de leer cuando hay varias razones para salir, y `break` cuando hay una sola.
+
+## Validar datos con un bucle
+
+En el capítulo 4, si el precio era negativo, MiTienda mostraba un error y terminaba. Con un bucle puedes volver a preguntar **hasta que el dato sea válido**:
+
+```python
+cantidad = int(input("Cantidad: "))
+while cantidad <= 0:
+    print("La cantidad debe ser mayor que 0")
+    cantidad = int(input("Cantidad: "))
+print(f"Cantidad registrada: {cantidad}")
+```
+
+```{.text .salida}
+Cantidad: -2
+La cantidad debe ser mayor que 0
+Cantidad: 0
+La cantidad debe ser mayor que 0
+Cantidad: 3
+Cantidad registrada: 3
+```
+
+Este patrón resuelve los números fuera de rango. Lo que todavía no resuelve es que alguien escriba `tres` en lugar de `3`: eso provoca un `ValueError` y lo atraparás en el capítulo 9.
+
+::: {.callout-warning .error title="Errores que vi como ayudante"}
+**14. El bucle infinito.** El programa no termina, la terminal se llena de texto o se queda «pensando».
+
+```{.python .error}
+contador = 1
+while contador <= 3:
+    print(f"Cliente {contador}")
+# falta: contador += 1
+```
+
+*Por qué pasa:* falta la actualización, así que la condición nunca cambia. *Qué hacer:* detén el programa con **Ctrl + C** y revisa las tres partes del bucle: inicialización, condición y actualización.
+
+**15. El acumulador en el lugar equivocado.** Si escribes `total = 0` **dentro** del bucle, el total se reinicia en cada vuelta y al final solo tiene el último precio. No hay mensaje de error: el resultado simplemente está mal. *Regla:* contadores y acumuladores se inicializan **antes** del bucle.
+
+**16. Errores «por uno».** Querías 10 vueltas y diste 9, o 11. Pasa con `range(1, 10)` (va de 1 a 9) y con `<` en lugar de `<=`. *Consejo:* haz la prueba de escritorio de la **primera** y la **última** iteración; ahí se esconden casi todos.
+:::
+
+::: {.callout-tip .consejo title="Consejo de ayudante"}
+Para *ver* cómo se mueven las variables de un bucle, pega tu código en Python Tutor (pythontutor.com). Ejecuta el programa paso a paso y dibuja el valor de cada variable, igual que tu prueba de escritorio, pero sin errores de anotación (Guo, 2013).
+:::
+
+## Retos
+
+::: {.callout-note .reto-basico title="Reto 5.1 · Básico · autocorregible"}
+Escribe un programa que pida un número entero `n` y muestre la suma de los números del 1 al `n`. Para `n = 5` debe mostrar `15`. Prueba también con `n = 1` y `n = 0`.
+:::
+
+::: {.callout-note .reto-intermedio title="Reto 5.2 · Intermedio"}
+Doña Rosa quiere saber cómo le fue en el día. Pide el monto de cada venta hasta que se ingrese 0 y muestra: cuántas ventas hubo, el total vendido, el promedio por venta y la venta más alta. ¿Qué debe mostrar tu programa si la primera venta ingresada ya es 0?
+:::
+
+::: {.callout-note .reto-desafio title="Reto 5.3 · Desafío"}
+Programa el juego «adivina el número»: la computadora elige un número del 1 al 50 (usa `import random` y `random.randint(1, 50)`), y el jugador tiene 6 intentos. Después de cada intento, indica «más alto» o «más bajo». Al final, muestra si ganó y en cuántos intentos. Pista: necesitas un contador **y** una bandera.
+:::
+
+::: {.callout-important .ia title="IA con criterio"}
+**Pídele que te explique, no que te arregle.** Si tu bucle no termina o da un resultado incorrecto:
+
+*«Este bucle debería sumar los precios hasta que ingrese 0, pero el total sale mal. No me des el código corregido: hazme preguntas que me ayuden a encontrar el error yo mismo.»*
+
+**Verifica la respuesta:** cuando creas haber encontrado el error, compruébalo con una prueba de escritorio antes de cambiar el código. Las guías de la UNESCO sobre IA en educación recomiendan justamente usar estas herramientas para apoyar el razonamiento propio y no para reemplazarlo (Miao y Holmes, 2023).
+:::
+
+## Avance de MiTienda (v0.5)
+
+MiTienda ya atiende a un cliente que compra varios productos y repite el menú hasta que Doña Rosa elige salir. Además, cuenta cuántas ventas se hicieron en el día:
+
+```python
+# MiTienda v0.5: varias ventas hasta elegir «Salir»
+ventas_del_dia = 0
+total_del_dia = 0
+
+while True:
+    print("=== MiTienda ===")
+    print("1. Registrar venta")
+    print("2. Salir")
+    opcion = input("Elige una opción: ")
+
+    if opcion == "1":
+        subtotal = 0
+        nombre = input("Producto (vacío para cerrar la venta): ")
+        while nombre != "":
+            precio = float(input("Precio unitario: "))
+            cantidad = int(input("Cantidad: "))
+            subtotal += precio * cantidad
+            nombre = input("Producto (vacío para cerrar la venta): ")
+
+        if subtotal > 200:
+            porcentaje = 10
+        elif subtotal > 100:
+            porcentaje = 5
+        else:
+            porcentaje = 0
+        total = subtotal * (1 - porcentaje / 100)
+        print(f"Subtotal: {subtotal:.2f}  Descuento: {porcentaje} %")
+        print(f"Total a pagar: {total:.2f}")
+        ventas_del_dia += 1
+        total_del_dia += total
+    elif opcion == "2":
+        break
+    else:
+        print("Opción no válida")
+
+print(f"Ventas del día: {ventas_del_dia}. Total: {total_del_dia:.2f}")
+```
+
+```{.text .salida}
+=== MiTienda ===
+1. Registrar venta
+2. Salir
+Elige una opción: 1
+Producto (vacío para cerrar la venta): Pan
+Precio unitario: 0.5
+Cantidad: 10
+Producto (vacío para cerrar la venta): Queso
+Precio unitario: 45
+Cantidad: 3
+Producto (vacío para cerrar la venta):
+Subtotal: 140.00  Descuento: 5 %
+Total a pagar: 133.00
+=== MiTienda ===
+1. Registrar venta
+2. Salir
+Elige una opción: 2
+Ventas del día: 1. Total: 133.00
+```
+
+Hay un bucle **dentro** de otro: el externo repite el menú y el interno repite los productos de una venta. Fíjate en dónde se inicializa cada acumulador: `subtotal` se reinicia en cada venta (dentro del menú), pero `total_del_dia` se inicializa una sola vez, antes de todo. Ese es exactamente el error 15, aplicado a propósito.
+
+El programa ya es largo y empieza a costar leerlo. En el capítulo 6 lo vas a ordenar en funciones.
+
+::: {.callout-note .resumen title="Resumen"}
+- `while` repite mientras una condición sea verdadera; necesita inicialización, condición y actualización.
+- `for` recorre una secuencia; con `range()` repites un número conocido de veces. `range(a, b)` no incluye `b`.
+- Contadores y acumuladores se inicializan **antes** del bucle.
+- `break` sale de un bucle; una bandera hace lo mismo de forma más explícita.
+- Ctrl + C detiene un programa que quedó en un bucle infinito.
+:::
+
+::: {.callout-note title="Código QR"}
+![](img/qr_pendiente.png){width=15%} Código y soluciones del capítulo 5
+:::

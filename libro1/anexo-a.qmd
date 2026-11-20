@@ -1,0 +1,37 @@
+# Anexo A. Los 20 errores más comunes {.unnumbered}
+
+Este anexo reúne los errores de los recuadros «Errores que vi como ayudante». La selección parte de mi experiencia como ayudante de cátedra y se contrasta con estudios a gran escala sobre los errores de principiantes (Altadmri y Brown, 2015). Úsalo como lista de consulta rápida: cuando veas un mensaje, búscalo en la tercera columna y vuelve al capítulo indicado para leer la causa y la solución completas.
+
+| N.º | Error | Síntoma o mensaje | Cap. |
+|---|---|---|---|
+| 1 | Empezar por el código | Programa que se «parcha» sin fin | 1 |
+| 2 | Pasos ambiguos en el algoritmo | Nadie más puede seguirlo | 1 |
+| 3 | Probar solo el caso feliz | Falla con datos límite | 1 |
+| 4 | Sumar texto y número | `TypeError: can only concatenate str…` | 2 |
+| 5 | Nombre de variable mal escrito | `NameError: name '…' is not defined` | 2 |
+| 6 | Comillas o paréntesis sin cerrar | `SyntaxError` | 2 |
+| 7 | Confundir `=` con `==` | `SyntaxError: … Maybe you meant '=='…` | 3 y 4 |
+| 8 | `int()` con un texto decimal | `ValueError: invalid literal for int()…` | 3 |
+| 9 | Dividir entre cero | `ZeroDivisionError: division by zero` | 3 |
+| 10 | Ignorar la precedencia | Resultado incorrecto, sin error | 3 |
+| 11 | Olvidar la indentación | `IndentationError: expected an indented block…` | 4 |
+| 12 | Ordenar mal los `elif` | Una rama nunca se ejecuta | 4 |
+| 13 | Comparar textos con mayúsculas | La condición nunca es verdadera | 4 |
+| 14 | Bucle infinito | El programa no termina (Ctrl + C) | 5 |
+| 15 | Acumulador dentro del bucle | El total solo tiene el último valor | 5 |
+| 16 | Error «por uno» | Una vuelta de más o de menos | 5 |
+| 17 | `print` en lugar de `return` | `None` o `TypeError: … 'NoneType'…` | 6 |
+| 18 | Índice o clave inexistente | `IndexError` o `KeyError` | 7 |
+| 19 | Modo `"w"` en lugar de `"a"` | Se pierden los datos anteriores, sin error | 8 |
+| 20 | `except` sin tipo | El programa dice «Error» y oculta la causa | 9 |
+
+: Los 20 errores documentados en el libro {tbl-colwidths="[6,30,50,14]"}
+
+## Cómo leer cualquier mensaje de error
+
+Si tu error no está en la tabla, aplica los pasos del capítulo 9:
+
+1. Lee la **última línea**: el tipo de error y su descripción.
+2. Busca la **línea de tu archivo** que aparece más abajo en el traceback.
+3. Mira el valor de las variables de esa línea con `print` o con el depurador.
+4. Formula una hipótesis y cambia **una sola cosa**.

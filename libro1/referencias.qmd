@@ -1,0 +1,45 @@
+# Referencias {.unnumbered}
+
+Altadmri, A., y Brown, N. C. C. (2015). 37 million compilations: Investigating novice programming mistakes in large-scale student data. En *Proceedings of the 46th ACM Technical Symposium on Computer Science Education* (pp. 522–527). ACM. https://doi.org/10.1145/2676723.2677258
+
+Becker, B. A., Denny, P., Pettit, R., Bouchard, D., Bouvier, D. J., Harrington, B., Kamil, A., Karkare, A., McDonald, C., Osera, P.-M., Pearce, J. L., y Prather, J. (2019). Compiler error messages considered unhelpful: The landscape of text-based programming error message research. En *Proceedings of the Working Group Reports on Innovation and Technology in Computer Science Education* (pp. 177–210). ACM. https://doi.org/10.1145/3344429.3372508
+
+Bennedsen, J., y Caspersen, M. E. (2007). Failure rates in introductory programming. *ACM SIGCSE Bulletin, 39*(2), 32–36. https://doi.org/10.1145/1272848.1272879
+
+Bennedsen, J., y Caspersen, M. E. (2019). Failure rates in introductory programming: 12 years later. *ACM Inroads, 10*(2), 30–36. https://doi.org/10.1145/3324888
+
+Denny, P., Prather, J., Becker, B. A., Finnie-Ansley, J., Hellas, A., Leinonen, J., Luxton-Reilly, A., Reeves, B. N., Santos, E. A., y Sarsa, S. (2024). Computing education in the era of generative AI. *Communications of the ACM, 67*(2), 56–67. https://doi.org/10.1145/3624720
+
+Deterding, S., Dixon, D., Khaled, R., y Nacke, L. (2011). From game design elements to gamefulness: Defining "gamification". En *Proceedings of the 15th International Academic MindTrek Conference: Envisioning Future Media Environments* (pp. 9–15). ACM. https://doi.org/10.1145/2181037.2181040
+
+Downey, A. B. (2024). *Think Python: How to think like a computer scientist* (3.ª ed.). O'Reilly Media.
+
+Guo, P. J. (2013). Online Python Tutor: Embeddable web-based program visualization for CS education. En *Proceedings of the 44th ACM Technical Symposium on Computer Science Education* (pp. 579–584). ACM. https://doi.org/10.1145/2445196.2445368
+
+Joyanes Aguilar, L. (2008). *Fundamentos de programación: Algoritmos, estructura de datos y objetos* (4.ª ed.). McGraw-Hill.
+
+Kazemitabaar, M., Chow, J., Ma, C. K. T., Ericson, B. J., Weintrop, D., y Grossman, T. (2023). Studying the effect of AI code generators on supporting novice learners in introductory programming. En *Proceedings of the 2023 CHI Conference on Human Factors in Computing Systems* (pp. 1–23). ACM. https://doi.org/10.1145/3544548.3580919
+
+Matthes, E. (2023). *Python crash course: A hands-on, project-based introduction to programming* (3.ª ed.). No Starch Press.
+
+Miao, F., y Holmes, W. (2023). *Guidance for generative AI in education and research*. UNESCO. https://doi.org/10.54675/EWZM9535
+
+Prather, J., Denny, P., Leinonen, J., Becker, B. A., Albluwi, I., Craig, M., Keuning, H., Kiesler, N., Kohn, T., Luxton-Reilly, A., MacNeil, S., Petersen, A., Pettit, R., Reeves, B. N., y Savelka, J. (2023). The robots are here: Navigating the generative AI revolution in computing education. En *Proceedings of the 2023 Working Group Reports on Innovation and Technology in Computer Science Education* (pp. 108–159). ACM. https://doi.org/10.1145/3623762.3633499
+
+Python Software Foundation. (s. f.-a). *El tutorial de Python* (versión 3.14). Recuperado el 23 de octubre de 2026, de https://docs.python.org/es/3/tutorial/
+
+Python Software Foundation. (s. f.-b). *Funciones incorporadas* (versión 3.14). Recuperado el 23 de octubre de 2026, de https://docs.python.org/es/3/library/functions.html
+
+Python Software Foundation. (s. f.-c). *Expresiones*. En *La referencia del lenguaje Python* (versión 3.14). Recuperado el 23 de octubre de 2026, de https://docs.python.org/es/3/reference/expressions.html
+
+Python Software Foundation. (s. f.-d). *csv — CSV file reading and writing* (versión 3.15). Recuperado el 16 de noviembre de 2026, de https://docs.python.org/es/3/library/csv.html
+
+Robins, A., Rountree, J., y Rountree, N. (2003). Learning and teaching programming: A review and discussion. *Computer Science Education, 13*(2), 137–172. https://doi.org/10.1076/csed.13.2.137.14200
+
+Sweigart, A. (2025). *Automate the boring stuff with Python: Practical programming for total beginners* (3.ª ed.). No Starch Press.
+
+Sweller, J. (1988). Cognitive load during problem solving: Effects on learning. *Cognitive Science, 12*(2), 257–285. https://doi.org/10.1207/s15516709cog1202_4
+
+van Rossum, G., Warsaw, B., y Coghlan, A. (2001). *PEP 8 – Style guide for Python code*. Python Software Foundation. https://peps.python.org/pep-0008/
+
+Watson, C., y Li, F. W. B. (2014). Failure rates in introductory programming revisited. En *Proceedings of the 2014 Conference on Innovation & Technology in Computer Science Education* (pp. 39–44). ACM. https://doi.org/10.1145/2591708.2591749

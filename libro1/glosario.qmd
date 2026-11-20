@@ -1,0 +1,39 @@
+# Glosario {.unnumbered}
+
+| Término | Definición |
+|---|---|
+| Acumulador | Variable que suma una cantidad variable en cada iteración de un bucle. |
+| Algoritmo | Secuencia finita, precisa y definida de pasos que resuelve un problema. |
+| Argumento | Valor concreto que se pasa a una función al llamarla. |
+| Asignación | Instrucción que guarda un valor en una variable (`=` en Python). |
+| Bandera | Variable booleana que indica si un bucle debe continuar o si algo ocurrió. |
+| Bucle | Instrucción que repite un bloque de código (`while`, `for`). |
+| Caso límite | Dato en la frontera de una condición, o inválido, que pone a prueba un programa. |
+| Clave | Identificador único con el que se busca un valor en un diccionario. |
+| Constante | Variable cuyo valor no cambia durante el programa; por convención, en mayúsculas. |
+| Contador | Variable que suma una cantidad fija, normalmente 1, en cada iteración. |
+| CSV | Formato de texto con valores separados por comas y una fila por línea. |
+| Depurar | Encontrar y corregir la causa de un error. |
+| Diccionario | Estructura que guarda pares clave: valor y busca por clave. |
+| Docstring | Texto entre triples comillas que documenta una función. |
+| Excepción | Error que ocurre durante la ejecución y que puede atraparse con `try`/`except`. |
+| Expresión | Combinación de valores, variables y operadores que produce un resultado. |
+| f-string | Texto con prefijo `f` en el que se insertan valores entre llaves. |
+| Función | Bloque de código con nombre que recibe parámetros y puede devolver un valor. |
+| Índice | Posición de un elemento en una lista; empieza en 0. |
+| Indentación | Sangría que, en Python, indica qué líneas pertenecen a un bloque. |
+| Iteración | Cada repetición del bloque de un bucle. |
+| Lista | Secuencia ordenada y modificable de valores. |
+| Parámetro | Variable de una función que recibe un argumento. |
+| Precedencia | Orden en que se evalúan los operadores de una expresión. |
+| Prueba de escritorio | Ejecución manual de un algoritmo anotando el valor de cada variable. |
+| Pseudocódigo | Algoritmo escrito en lenguaje natural con estructura de programa. |
+| Punto de interrupción | Marca que detiene la ejecución en una línea para inspeccionar variables. |
+| `return` | Instrucción que termina una función y entrega un valor a quien la llamó. |
+| Tipo de dato | Clase de un valor (`int`, `float`, `str`, `bool`) que define qué se puede hacer con él. |
+| Traceback | Mensaje que muestra la cadena de llamadas que llevó a una excepción. |
+| Valor centinela | Valor especial que indica el final de una serie de datos. |
+| Variable | Nombre que apunta a un valor guardado en la memoria. |
+| Variable local | Variable creada dentro de una función, que solo existe mientras esta se ejecuta. |
+
+: Términos definidos en el libro {tbl-colwidths="[28,72]"}

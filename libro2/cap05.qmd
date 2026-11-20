@@ -1,0 +1,209 @@
+# Diseñar antes de crecer {#sec-cap5}
+
+::: {.callout-note .objetivos title="Al terminar este capítulo podrás"}
+- Dividir un programa en módulos con responsabilidades claras.
+- Explicar la cohesión y el acoplamiento y usarlos para evaluar un diseño.
+- Organizar un proyecto de Python como paquete, en capas.
+:::
+
+::: {.callout-note .problema title="Problema de inicio"}
+Ana trabaja en el total del día y Luis en el stock bajo. Los dos modifican `mitienda.py`, el único archivo del proyecto. Cada pull request tiene conflictos, aunque sus historias no tienen nada que ver entre sí. ¿El problema es Git, o es la forma en que está organizado el código?
+:::
+
+## Por qué diseñar
+
+En el Libro 1, MiTienda v1.0 llegó a 150 líneas en un archivo, ordenadas en secciones. Para una persona, eso alcanza. Pero el problema de inicio muestra lo que pasa cuando un equipo trabaja sobre un solo archivo: cualquier cambio toca el mismo lugar, los conflictos se multiplican y nadie se anima a modificar una parte por miedo a romper otra.
+
+**Diseñar** es decidir cómo se divide el sistema en partes y cómo se comunican esas partes, **antes** de escribir el código nuevo. Sommerville (2011) lo ubica entre la especificación y la implementación, y en la práctica ágil se hace de a poco: lo justo para la siguiente entrega, revisado en cada sprint. No hace falta un documento de cincuenta páginas; hace falta que el equipo sepa dónde va cada cosa.
+
+## Módulos y responsabilidades
+
+Un **módulo** es un archivo `.py` que agrupa funciones relacionadas. En Python, cualquier archivo es un módulo que otro puede importar. La pregunta de diseño es: ¿qué va junto?
+
+Una regla práctica es darle a cada módulo **una sola razón para cambiar**. Mira las razones por las que MiTienda podría cambiar en los próximos meses:
+
+| Si cambia… | ¿Qué parte del código se toca? |
+|---|---|
+| La regla de descuentos o el stock mínimo | Las reglas del negocio |
+| La forma de guardar los datos (de CSV a base de datos) | El acceso a datos |
+| La forma de interactuar (de consola a una página web) | La interfaz |
+
+: Razones de cambio de MiTienda {tbl-colwidths="[56,44]"}
+
+Tres razones, tres módulos. Así nace el diseño en **capas**, uno de los más usados en sistemas de gestión:
+
+| Capa | Módulo | Responsabilidad | Puede usar |
+|---|---|---|---|
+| Presentación | `cli.py` | Conversar con el usuario: menús, `input()`, `print()`. | Datos y reglas |
+| Datos | `almacen.py` | Guardar y leer productos y ventas. | Reglas |
+| Reglas del negocio | `reglas.py` | Descuentos, stock mínimo. Funciones puras. | Nada |
+
+: Las tres capas de MiTienda v2 {tbl-colwidths="[18,18,40,24]"}
+
+La última columna es la más importante: las dependencias van **en una sola dirección**, de arriba hacia abajo. `reglas.py` no importa nada del proyecto; no sabe si hay una base de datos ni si hay una consola. Por eso es el módulo más fácil de probar y el más estable.
+
+```text
+   cli.py        (presentación)
+     │  usa
+     ▼
+   almacen.py    (datos)
+     │  usa
+     ▼
+   reglas.py     (reglas del negocio: no depende de nadie)
+```
+
+Vuelve al problema de inicio. Con este diseño, Ana trabaja en `almacen.py` (consulta del total) y en `cli.py` (una opción del menú); Luis, en `reglas.py` (cuándo un producto necesita reposición) y en `almacen.py` (la consulta). Todavía coinciden en un archivo, pero en funciones distintas. Git fusiona sin conflicto los cambios hechos en partes distintas de un mismo archivo; el conflicto aparece solo si los dos modifican las mismas líneas o líneas vecinas, por ejemplo si ambos agregan su función nueva justo al final del archivo. Por eso conviene acordar dónde va cada función nueva.
+
+## Cohesión y acoplamiento
+
+Dos conceptos clásicos sirven para evaluar cualquier diseño, desde una función hasta un sistema completo (Sommerville, 2011):
+
+- **Cohesión**: qué tan relacionadas están las cosas **dentro** de un módulo. Alta cohesión es bueno: todo lo de `reglas.py` habla de reglas del negocio.
+- **Acoplamiento**: cuánto depende un módulo de los detalles **de otro**. Bajo acoplamiento es bueno: si cambias cómo `almacen.py` guarda los datos, `cli.py` no debería enterarse.
+
+Un ejemplo de alto acoplamiento, que vi muchas veces:
+
+```python
+# cli.py — MAL: la interfaz conoce el formato del archivo
+with open("ventas.csv", newline="") as f:
+    for fila in csv.reader(f):
+        total += float(fila[3])
+print(f"Total: {total}")
+```
+
+Si mañana las ventas pasan a una base de datos, hay que cambiar la interfaz, aunque la interfaz no tiene nada que ver con cómo se guardan los datos. La versión desacoplada le **pide** el dato a la capa que lo sabe:
+
+```python
+# cli.py — BIEN: la interfaz pregunta, no sabe cómo se guarda
+print(f"Total: {almacen.total_del_dia(con, hoy):.2f}")
+```
+
+Cuando en el capítulo 8 MiTienda pase de CSV a SQLite, esta línea no va a cambiar. Ese es el beneficio concreto del bajo acoplamiento.
+
+## Un proyecto como paquete
+
+Cuando un programa tiene varios módulos, se agrupan en un **paquete**: una carpeta con un archivo `__init__.py`. Esta es la estructura de MiTienda v2:
+
+```text
+mitienda/v2/
+├── pyproject.toml        configuración del proyecto (capítulo 9)
+├── README.md
+├── mitienda/             el paquete
+│   ├── __init__.py       versión del paquete
+│   ├── __main__.py       permite ejecutar: python -m mitienda
+│   ├── reglas.py
+│   ├── almacen.py
+│   └── cli.py
+└── tests/                pruebas automáticas (capítulo 7)
+    ├── test_reglas.py
+    └── test_almacen.py
+```
+
+Dentro del paquete, los módulos se importan por su nombre completo:
+
+```{.python}
+from mitienda import reglas
+
+porcentaje = reglas.calcular_descuento(140)
+```
+
+Escribir `reglas.calcular_descuento` en lugar de importar la función suelta tiene una ventaja de lectura: cuando ves la llamada, sabes de qué módulo viene.
+
+El archivo `__main__.py` tiene dos líneas: importa `main` desde `cli.py` y la llama. Gracias a él, desde la carpeta `mitienda/v2` el programa se ejecuta con `python -m mitienda`.
+
+## El modelo de datos
+
+Diseñar también es decidir **qué datos** guarda el sistema y cómo se relacionan. Las historias del capítulo 3 dicen qué hace falta: productos con precio y stock (HU-03, HU-04), ventas de varios productos (HU-01) que se pueden anular (HU-05). Eso se traduce en tres entidades:
+
+| Entidad | Datos | Relación |
+|---|---|---|
+| Producto | nombre, precio, stock | Aparece en muchas líneas de venta. |
+| Venta | fecha, total, ¿anulada? | Tiene una o más líneas. |
+| Línea de venta | cantidad, importe | Pertenece a una venta y se refiere a un producto. |
+
+: Entidades de MiTienda v2 {tbl-colwidths="[20,34,46]"}
+
+¿Por qué separar venta y línea de venta? Porque una venta tiene **varios** productos. En el CSV del Libro 1, cada producto era una fila suelta y no había forma de saber cuáles se compraron juntos, ni de anular una compra completa. En el capítulo 8 este modelo se convierte en tablas de una base de datos.
+
+::: {.callout-warning .error title="Errores que vi como ayudante"}
+**1. El archivo dios.** Todo el proyecto en un `main.py` de 800 líneas. Funciona, pero nadie más que su autor se anima a tocarlo, y su autor tampoco después de dos semanas. *Cómo evitarlo:* cuando un archivo supera las 200 o 300 líneas, pregúntate qué razones de cambio mezcla.
+
+**2. Lógica atrapada en la interfaz.** El cálculo del descuento está dentro de la función que pide los datos con `input()`. Resultado: para probar el descuento hay que «tipear» una venta completa. *Cómo evitarlo:* las funciones de cálculo reciben datos por parámetros y devuelven resultados, sin `input()` ni `print()`. Es la misma regla del capítulo 6 del Libro 1, aplicada a todo el sistema.
+
+**3. Diseñar de más.** El extremo opuesto: veinte clases, cinco capas y tres patrones de diseño para una aplicación que registra ventas. *Cómo evitarlo:* diseña para las historias que tienes, no para las que imaginas. Si una historia nueva lo requiere, el diseño se ajusta en ese sprint.
+:::
+
+::: {.callout-tip .consejo title="Consejo de ayudante"}
+Antes de programar una historia, escribe en el pull request una frase de diseño: «Agrego `productos_para_reponer()` en `almacen.py`, que usa `necesita_reposicion()` de `reglas.py`; en `cli.py` solo muestro el resultado». Si no puedes escribir esa frase, todavía no sabes dónde va el código.
+:::
+
+## Retos
+
+::: {.callout-note .reto-basico title="Reto 5.1 · Básico"}
+Toma MiTienda v1.0 (Anexo B del Libro 1) y clasifica cada función en una de las tres capas: presentación, datos o reglas del negocio. ¿Hay alguna que mezcle dos capas?
+:::
+
+::: {.callout-note .reto-intermedio title="Reto 5.2 · Intermedio"}
+Divide MiTienda v1.0 en el paquete de tres módulos de este capítulo, sin cambiar lo que hace el programa. Comprueba que `python -m mitienda` sigue funcionando y que ningún módulo de una capa inferior importa uno de una capa superior.
+:::
+
+::: {.callout-note .reto-desafio title="Reto 5.3 · Desafío · en equipo"}
+Dibujen el diagrama de módulos de su proyecto de otra materia, con flechas de dependencia. Marquen las flechas que van «hacia arriba» (de datos a presentación, por ejemplo) y propongan cómo eliminarlas. Presenten el antes y el después en una página.
+:::
+
+::: {.callout-important .ia title="IA con criterio"}
+**Pídele que evalúe tu diseño con criterios explícitos.**
+
+*«Este es el árbol de archivos de mi proyecto y la lista de funciones de cada módulo. Evalúa la cohesión de cada módulo y señala qué dependencias generan acoplamiento alto. No propongas una arquitectura nueva; solo analiza la actual.»*
+
+**Verifica la respuesta:** las IA tienden a recomendar arquitecturas «de empresa» para proyectos pequeños. Contrasta cada sugerencia con el error 3: ¿lo necesitan tus historias de este sprint?
+:::
+
+## Avance de MiTienda v2: el paquete en capas
+
+El equipo convierte MiTienda v1.0 en el paquete `mitienda`. Este es el módulo de reglas completo; observa que los números «mágicos» de la versión 1 (100, 200, 5, 10) ahora son **constantes con nombre**, un cambio que se explica en el capítulo 6:
+
+```{.python}
+"""Reglas de negocio de MiTienda. Funciones puras: no leen ni escriben datos."""
+
+UMBRAL_DESCUENTO_ALTO = 200
+UMBRAL_DESCUENTO_MEDIO = 100
+DESCUENTO_ALTO = 10
+DESCUENTO_MEDIO = 5
+STOCK_MINIMO = 10
+
+
+def calcular_descuento(subtotal: float) -> int:
+    """Porcentaje de descuento que corresponde a un subtotal."""
+    if subtotal > UMBRAL_DESCUENTO_ALTO:
+        return DESCUENTO_ALTO
+    if subtotal > UMBRAL_DESCUENTO_MEDIO:
+        return DESCUENTO_MEDIO
+    return 0
+
+
+def aplicar_descuento(monto: float, porcentaje: int) -> float:
+    """Monto con el porcentaje de descuento aplicado, redondeado a 2 decimales."""
+    return round(monto * (1 - porcentaje / 100), 2)
+
+
+def necesita_reposicion(stock: int, minimo: int = STOCK_MINIMO) -> bool:
+    """True si el stock es menor que el mínimo (HU-04)."""
+    return stock < minimo
+```
+
+Las anotaciones como `subtotal: float` y `-> int` son **indicaciones de tipo** (*type hints*): documentan qué recibe y qué devuelve cada función. Python no las obliga, pero el editor las usa para avisarte si pasas un texto donde va un número.
+
+La historia HU-04 del primer sprint queda resuelta en dos piezas: la regla (`necesita_reposicion`, aquí) y la consulta que la aplica a todo el catálogo, en `almacen.py`.
+
+::: {.callout-note .resumen title="Resumen"}
+- Diseñar es decidir cómo se divide el sistema y cómo se comunican sus partes, de a poco y antes de programar.
+- Cada módulo debería tener una sola razón para cambiar.
+- En un diseño en capas, las dependencias van en una sola dirección; las reglas del negocio no dependen de nada.
+- Busca alta cohesión dentro de los módulos y bajo acoplamiento entre ellos.
+- Un paquete de Python es una carpeta con `__init__.py`; `__main__.py` permite ejecutarlo con `python -m`.
+:::
+
+::: {.callout-note title="Código QR"}
+![](img/qr_pendiente.png){width=15%} Código del paquete MiTienda v2 y plantilla de decisión de diseño
+:::

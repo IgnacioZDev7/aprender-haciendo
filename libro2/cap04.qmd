@@ -1,0 +1,183 @@
+# Trabajar en equipo con métodos ágiles {#sec-cap4}
+
+::: {.callout-note .objetivos title="Al terminar este capítulo podrás"}
+- Describir las responsabilidades, eventos y artefactos de Scrum y adaptarlos a un equipo de estudiantes.
+- Organizar el trabajo en un tablero Kanban con límites de trabajo en curso.
+- Conducir una reunión diaria corta y una retrospectiva útil.
+:::
+
+::: {.callout-note .problema title="Problema de inicio"}
+El equipo de MiTienda tiene seis historias priorizadas y dos semanas. El lunes, cada integrante elige «algo». El viernes hay cuatro historias empezadas y ninguna terminada. Nadie holgazaneó: todos trabajaron. ¿Qué falló?
+:::
+
+## El problema no es el esfuerzo
+
+El problema de inicio describe algo que vi en casi todos los equipos de proyecto: mucho trabajo **empezado** y poco **terminado**. Una historia al 80 % no le sirve a Doña Rosa; no puede usar «casi» un reporte. Y cuatro historias al 80 % suelen esconder los problemas más difíciles, que siempre quedan para el final.
+
+Los métodos ágiles nacieron para atacar justamente eso. El *Manifiesto ágil* (Beck et al., 2001) propone valorar «software funcionando sobre documentación extensiva» y «responder ante el cambio sobre seguir un plan». En la práctica, eso se traduce en entregar en ciclos cortos algo que funciona, mostrarlo, aprender y ajustar. Los dos métodos más usados para organizarlo son **Scrum** y **Kanban**.
+
+## Scrum en una página
+
+Scrum es un marco de trabajo liviano, descrito en una guía de menos de veinte páginas que sus autores actualizan periódicamente; esta sección sigue la versión de 2020 (Schwaber y Sutherland, 2020). Se organiza en ciclos de duración fija llamados **sprints**, de un mes o menos, y tiene tres grupos de elementos.
+
+### Las tres responsabilidades
+
+| Responsabilidad | Qué hace | En un equipo de estudiantes |
+|---|---|---|
+| *Product Owner* | Ordena el trabajo según el valor; es la voz del cliente. | Quien habla con el «cliente» (docente o usuario real) y mantiene la lista de historias. |
+| *Scrum Master* | Ayuda al equipo a usar Scrum y a quitar obstáculos. | Quien modera las reuniones y avisa cuando algo bloquea al equipo. Rota cada sprint. |
+| *Developers* | Construyen el incremento: analizan, programan, prueban. | Todos, incluidos el *Product Owner* y el *Scrum Master*. |
+
+: Responsabilidades de Scrum y su adaptación {tbl-colwidths="[20,40,40]"}
+
+La guía habla de responsabilidades, no de cargos: en un equipo de tres personas, alguien puede ser *Product Owner* y también programar. Lo importante es que cada responsabilidad tenga un dueño con nombre.
+
+### Los cinco eventos
+
+1. **El sprint**: el contenedor de todo lo demás. Para un semestre, dos semanas es un buen tamaño.
+2. **Planificación del sprint** (*Sprint Planning*): el equipo elige qué historias entran al sprint y define el **Objetivo del Sprint**, una frase que explica por qué ese sprint vale la pena.
+3. **Scrum diario** (*Daily Scrum*): 15 minutos como máximo para revisar el avance hacia el objetivo y ajustar el plan del día.
+4. **Revisión del sprint** (*Sprint Review*): se muestra lo terminado a quien lo va a usar y se recoge su opinión.
+5. **Retrospectiva** (*Sprint Retrospective*): el equipo revisa **cómo** trabajó y elige qué mejorar en el siguiente sprint.
+
+### Los tres artefactos
+
+| Artefacto | Qué es | Su compromiso |
+|---|---|---|
+| Lista del producto (*Product Backlog*) | Todo lo que podría hacerse, ordenado por valor: las historias del capítulo 3. | Objetivo del Producto |
+| Lista del sprint (*Sprint Backlog*) | Las historias elegidas para este sprint y el plan para terminarlas. | Objetivo del Sprint |
+| Incremento | Lo terminado en el sprint, que funciona y se puede usar. | Definición de Terminado |
+
+: Artefactos de Scrum {tbl-colwidths="[28,46,26]"}
+
+La **Definición de Terminado** merece una pausa, porque es la respuesta directa al problema de inicio. Es una lista que el equipo acuerda **antes** de empezar y que toda historia debe cumplir para contar como hecha. Si no la cumple, no está terminada, aunque «solo falten detalles». La de MiTienda aparece al final del capítulo.
+
+## Kanban: ver el trabajo y limitarlo
+
+Kanban viene de la manufactura y fue adaptado al software por David Anderson (2010). Su herramienta central es un **tablero** con columnas que representan las etapas del trabajo y tarjetas que representan las tareas:
+
+| Por hacer | En curso (máx. 3) | En revisión (máx. 2) | Terminado |
+|---|---|---|---|
+| HU-01 Venta de varios productos | HU-02 Total del día | | |
+| HU-03 Editar catálogo | HU-04 Stock bajo | | |
+| HU-05 Anular venta | | | |
+| HU-06 Exportar mes | | | |
+
+: Tablero Kanban de MiTienda al inicio del primer sprint {tbl-colwidths="[28,26,24,22]"}
+
+El número entre paréntesis es el **límite de trabajo en curso** (*WIP limit*, por *work in progress*). Si la columna «En curso» ya tiene tres tarjetas, nadie puede empezar otra: primero hay que terminar o ayudar a terminar una. Parece una restricción arbitraria, pero obliga a lo que el equipo del problema de inicio no hizo: **dejar de empezar y empezar a terminar**.
+
+En GitHub, el tablero se arma con **GitHub Projects**: cada historia es un *issue* y cada columna es un estado. Cuando un pull request menciona el issue (`Closes #4`), la tarjeta pasa sola a «Terminado» al fusionarse. Así el tablero se actualiza con el trabajo, no con la buena memoria de alguien.
+
+### ¿Scrum o Kanban?
+
+No son excluyentes. Muchos equipos usan los sprints y las reuniones de Scrum con un tablero Kanban para ver el trabajo. Para un proyecto de semestre recomiendo exactamente esa combinación: sprints de dos semanas que coinciden con las entregas del docente, y un tablero con límite de trabajo en curso.
+
+## Scrum a escala estudiantil
+
+Un equipo de estudiantes no es un equipo profesional: no trabaja ocho horas diarias en el mismo proyecto, tiene otras cuatro materias y las reuniones compiten con los horarios del micro. Esto es lo que conviene **conservar** y lo que se puede **simplificar**:
+
+| Conservar siempre | Simplificar |
+|---|---|
+| Sprints de duración fija que terminan en algo que funciona. | La reunión diaria puede ser tres veces por semana, o por mensaje escrito. |
+| La Definición de Terminado. | La planificación puede durar 30 minutos para un sprint de dos semanas. |
+| Un tablero visible y actualizado. | La revisión puede ser la entrega al docente. |
+| La retrospectiva, aunque dure 15 minutos. | Los roles rotan cada sprint para que todos aprendan. |
+
+: Qué conservar y qué simplificar en un equipo de 3 a 5 personas {tbl-colwidths="[50,50]"}
+
+## La reunión diaria y la retrospectiva
+
+### La reunión diaria de 10 minutos
+
+Su objetivo no es informar al *Scrum Master*, sino coordinarse. Cada persona responde, en un minuto:
+
+- ¿Qué terminé desde la última reunión?
+- ¿Qué voy a terminar antes de la próxima?
+- ¿Qué me está bloqueando?
+
+Los problemas se **anotan**, no se resuelven en la reunión. Quienes necesiten resolverlo se quedan después; los demás vuelven a trabajar.
+
+### La retrospectiva
+
+La retrospectiva es el evento que más se salta y el que más mejora a un equipo. Un formato simple, que funciona en 15 minutos:
+
+1. Cada persona escribe en notas, en silencio, durante cinco minutos: **¿qué funcionó?**, **¿qué no funcionó?**, **¿qué probamos distinto?**
+2. Se leen y se agrupan las notas parecidas.
+3. El equipo elige **una sola** mejora para el próximo sprint, con un responsable.
+
+Una mejora concreta («los pull requests se revisan en menos de 24 horas») vale más que diez buenos deseos («comunicarnos mejor»).
+
+::: {.callout-warning .error title="Errores que vi como ayudante"}
+**1. El tablero que nadie actualiza.** El tablero se arma con entusiasmo la primera semana y para la tercera muestra un proyecto que ya no existe. *Por qué pasa:* moverlo es una tarea extra que nadie tiene asignada. *Cómo evitarlo:* conecta el tablero con GitHub para que los pull requests muevan las tarjetas, y revísalo en la reunión diaria.
+
+**2. La retrospectiva que se convierte en culpas.** «El sprint falló porque Juan no hizo su parte.» La reunión termina con alguien ofendido y nada cambia. *Cómo evitarlo:* la regla es hablar del **proceso**, no de las personas. La pregunta no es «¿quién falló?», sino «¿qué hizo posible que esto pasara y cómo lo evitamos?».
+
+**3. «Terminado» sin definición.** Cada uno entiende «terminado» de forma distinta: para uno es «compila», para otro «funciona en mi computadora». *Cómo evitarlo:* escriban la Definición de Terminado el primer día y péguenla en el README del repositorio.
+:::
+
+::: {.callout-tip .consejo title="Consejo de ayudante"}
+Divide las historias grandes hasta que cada una se pueda terminar en dos o tres días. Una historia que dura todo el sprint es una historia que no vas a saber si está atrasada hasta que ya es tarde.
+:::
+
+## Retos
+
+::: {.callout-note .reto-basico title="Reto 4.1 · Básico"}
+Clasifica estos elementos como responsabilidad, evento o artefacto de Scrum y explica cada uno en una frase: lista del producto, retrospectiva, *Scrum Master*, incremento, Scrum diario, *Product Owner*.
+:::
+
+::: {.callout-note .reto-intermedio title="Reto 4.2 · Intermedio · en equipo"}
+Armen en GitHub Projects el tablero de su proyecto con las columnas «Por hacer», «En curso», «En revisión» y «Terminado», con límites de trabajo en curso. Creen un issue por historia y conecten al menos un pull request a un issue con `Closes #N`.
+:::
+
+::: {.callout-note .reto-desafio title="Reto 4.3 · Desafío · en equipo"}
+Ejecuten un sprint de una semana con las cuatro reuniones, aunque sean cortas. Al final, escriban una retrospectiva con el formato del capítulo y comparen: ¿cuántas historias empezaron y cuántas terminaron? ¿Qué cambiarían en el siguiente sprint?
+:::
+
+::: {.callout-important .ia title="IA con criterio"}
+**Úsala para preparar, no para decidir.** Antes de la planificación del sprint:
+
+*«Esta es nuestra lista de historias con su valor y esfuerzo estimado, y tenemos 25 horas de trabajo entre tres personas. Propón dos posibles Objetivos del Sprint y qué historias entrarían en cada uno, explicando el riesgo de cada opción.»*
+
+**Verifica la respuesta:** la IA no conoce a tu equipo, ni tus horarios, ni qué tan bien domina cada uno Git o SQL. Usa su propuesta como punto de partida para la discusión; la decisión y el compromiso son del equipo.
+:::
+
+## Avance de MiTienda v2: el primer sprint
+
+El equipo planifica su primer sprint de dos semanas. Toma las historias de mucho valor y poco esfuerzo, como se decidió en el capítulo 3:
+
+```text
+Sprint 1 · 2 semanas
+Objetivo del Sprint: que Doña Rosa sepa, al cerrar la tienda,
+cuánto vendió y qué productos tiene que reponer.
+
+Lista del sprint:
+  HU-02  Total vendido en el día              (Ana)
+  HU-04  Productos con pocas unidades         (Luis)
+  Tarea  Agregar el campo stock al catálogo   (Carla)
+```
+
+Y acuerda su primera Definición de Terminado, que se pega en el README del repositorio:
+
+```text
+Una historia está TERMINADA cuando:
+[ ] Cumple todos sus criterios de aceptación.
+[ ] Tiene pruebas automáticas que pasan (desde el capítulo 7).
+[ ] Fue revisada en un pull request por otra persona.
+[ ] Está fusionada en main y main funciona.
+[ ] El README explica cómo usar lo nuevo, si corresponde.
+```
+
+La segunda casilla todavía no se puede cumplir: el equipo no sabe escribir pruebas automáticas. La Definición de Terminado crece con el equipo; en el capítulo 7 esa casilla se vuelve obligatoria.
+
+::: {.callout-note .resumen title="Resumen"}
+- Los métodos ágiles entregan en ciclos cortos algo que funciona, para aprender y ajustar.
+- Scrum tiene tres responsabilidades, cinco eventos y tres artefactos, cada uno con su compromiso.
+- La Definición de Terminado evita las historias «casi listas».
+- Kanban hace visible el trabajo y lo limita: dejar de empezar y empezar a terminar.
+- La retrospectiva habla del proceso, no de las personas, y termina con una mejora concreta.
+:::
+
+::: {.callout-note title="Código QR"}
+![](img/qr_pendiente.png){width=15%} Plantillas de tablero, Definición de Terminado y retrospectiva
+:::

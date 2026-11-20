@@ -1,0 +1,291 @@
+# Ordenar el código en funciones {#sec-cap6}
+
+::: {.callout-note .objetivos title="Al terminar este capítulo podrás"}
+- Definir funciones con parámetros y valores de retorno.
+- Distinguir entre mostrar un resultado (`print`) y devolverlo (`return`).
+- Probar una función de forma automática con `assert`.
+:::
+
+::: {.callout-note .problema title="Problema de inicio"}
+MiTienda v0.5 tiene más de 40 líneas en un solo bloque. Doña Rosa te pide un cambio pequeño: el descuento del 5 % ahora empieza en 150, no en 100. ¿Cuánto tardas en encontrar la línea que hay que cambiar? ¿Y si la regla de descuento estuviera copiada en dos lugares del programa?
+:::
+
+## Qué es una función
+
+Ya usaste muchas funciones: `print()`, `input()`, `len()`, `round()`. Cada una es un bloque de código con nombre que alguien escribió, y tú la **llamas** sin saber cómo está hecha por dentro. Solo te importa qué le das (sus **argumentos**) y qué te devuelve.
+
+Ahora vas a escribir las tuyas. Una función sirve para tres cosas:
+
+1. **Ponerle nombre a una idea.** `calcular_descuento(subtotal)` se entiende mejor que cinco líneas de `if`.
+2. **No repetir código.** Si la regla cambia, la cambias en un solo lugar.
+3. **Probar por partes.** Puedes comprobar que una función pequeña es correcta sin ejecutar todo el programa.
+
+## Definir y llamar una función
+
+Se define con `def`, un nombre, paréntesis, dos puntos y un bloque indentado:
+
+```{python}
+def saludar():
+    print("Bienvenido a MiTienda")
+
+saludar()
+saludar()
+```
+
+Definir una función **no la ejecuta**: solo le enseña a Python cómo hacerla. El código se ejecuta cuando la llamas, escribiendo su nombre con paréntesis. Por eso el mensaje aparece dos veces.
+
+### Parámetros
+
+Los **parámetros** son las variables que reciben los datos con los que trabaja la función. Se escriben entre los paréntesis de la definición. Los valores concretos que pasas al llamarla son los **argumentos**:
+
+```{python}
+def mostrar_linea(producto, cantidad, precio):
+    print(f"{cantidad} x {producto} a {precio:.2f} = {cantidad * precio:.2f}")
+
+mostrar_linea("Pan", 10, 0.5)
+mostrar_linea("Queso", 3, 45)
+```
+
+Los argumentos se asignan a los parámetros **en orden**: `"Pan"` va a `producto`, `10` a `cantidad` y `0.5` a `precio`. Si los cambias de lugar, Python no se queja, pero el resultado será absurdo.
+
+## Devolver un valor con return
+
+`mostrar_linea` muestra un texto, pero no te entrega ningún resultado que puedas seguir usando. Para eso está `return`:
+
+```{python}
+def calcular_descuento(subtotal):
+    if subtotal > 200:
+        return 10
+    elif subtotal > 100:
+        return 5
+    else:
+        return 0
+
+porcentaje = calcular_descuento(135)
+print(f"Descuento: {porcentaje} %")
+print(calcular_descuento(250) + calcular_descuento(50))
+```
+
+`return` hace dos cosas: **termina** la función en ese momento y **entrega** el valor a quien la llamó. La llamada `calcular_descuento(135)` se reemplaza por el valor `5`, igual que `len("pan")` se reemplaza por `3`.
+
+Esta es la diferencia más importante del capítulo:
+
+| | `print()` dentro de la función | `return` |
+|---|---|---|
+| Qué hace | Muestra un texto en la pantalla | Entrega un valor al programa |
+| ¿Se puede guardar en una variable? | No (la variable recibe `None`) | Sí |
+| ¿Se puede usar en un cálculo? | No | Sí |
+| Para qué sirve | Comunicarse con el usuario | Comunicarse con el resto del código |
+
+: `print` frente a `return` {tbl-colwidths="[30,35,35]"}
+
+Una buena regla: las funciones que **calculan** devuelven con `return` y no imprimen nada. Las que **conversan** con el usuario (piden datos o muestran menús) pueden usar `input()` y `print()`. Separar las dos cosas hace que las funciones de cálculo sean fáciles de probar.
+
+## Variables locales
+
+Las variables creadas dentro de una función, incluidos sus parámetros, son **locales**: existen solo mientras la función se ejecuta y no se ven desde afuera.
+
+```python
+def calcular_total(subtotal):
+    total = subtotal * 0.95
+    return total
+
+calcular_total(100)
+print(total)
+```
+
+```{.text .salida}
+NameError: name 'total' is not defined
+```
+
+La variable `total` desapareció cuando terminó la función. Para conservar el resultado, guarda lo que devuelve: `total = calcular_total(100)`. Esta separación es una ventaja: puedes usar nombres como `total` dentro de muchas funciones sin que se pisen entre sí.
+
+## Valores por defecto y documentación
+
+Un parámetro puede tener un **valor por defecto**, que se usa si no pasas ese argumento:
+
+```{python}
+def aplicar_descuento(subtotal, porcentaje=0):
+    """Devuelve el subtotal con el porcentaje de descuento aplicado."""
+    return round(subtotal * (1 - porcentaje / 100), 2)
+
+print(aplicar_descuento(140))
+print(aplicar_descuento(140, 5))
+```
+
+El texto entre triples comillas, justo debajo del `def`, es la **docstring**: la documentación de la función. Explica qué hace, no cómo. Los editores como VS Code la muestran cuando pasas el ratón sobre el nombre de la función, y la guía de estilo de Python (van Rossum et al., 2001) recomienda escribirla en toda función pública.
+
+## Probar funciones con assert
+
+Como `calcular_descuento` devuelve un valor, puedes comprobarla automáticamente. `assert` verifica que una condición sea verdadera; si no lo es, detiene el programa con un `AssertionError`:
+
+```{python}
+def calcular_descuento(subtotal):
+    if subtotal > 200:
+        return 10
+    elif subtotal > 100:
+        return 5
+    else:
+        return 0
+
+# Casos de prueba del capítulo 4, ahora automáticos
+assert calcular_descuento(50) == 0
+assert calcular_descuento(100) == 0
+assert calcular_descuento(100.01) == 5
+assert calcular_descuento(200) == 5
+assert calcular_descuento(250) == 10
+print("¡Todas las pruebas pasaron!")
+```
+
+La tabla de casos de prueba del capítulo 4 se convirtió en cinco líneas que puedes ejecutar cada vez que cambies el código. Si Doña Rosa cambia la regla y te equivocas, una prueba fallará y te avisará antes que ella. Así funcionan los retos **autocorregibles** de este libro, y es la idea que el Libro 2 lleva más lejos con la herramienta pytest.
+
+::: {.callout-warning .error title="Errores que vi como ayudante"}
+**17. Imprimir en lugar de devolver.**
+
+```{.python .error}
+def calcular_descuento(subtotal):
+    if subtotal > 100:
+        print(5)
+    else:
+        print(0)
+
+total = 140 * (1 - calcular_descuento(140) / 100)
+```
+
+```{.text .salida}
+5
+TypeError: unsupported operand type(s) for /: 'NoneType' and 'int'
+```
+
+*Cómo leerlo:* la función mostró el 5, pero **devolvió** `None`, que es lo que devuelve toda función sin `return`. Después Python intentó dividir `None` entre 100. *Solución:* cambia `print(...)` por `return ...`. Si ves `None` donde esperabas un valor, sospecha de un `return` que falta.
+
+Otros dos tropiezos frecuentes de este capítulo, sin número propio porque Python los explica bien:
+
+- **Llamar a la función antes de definirla:** `NameError: name 'calcular_descuento' is not defined`. Las definiciones van arriba; el programa principal, abajo.
+- **Olvidar los paréntesis:** `calcular_descuento` (sin paréntesis) no ejecuta la función, solo la nombra. Si imprimes eso, verás algo como `<function calcular_descuento at 0x…>`.
+:::
+
+::: {.callout-tip .consejo title="Consejo de ayudante"}
+Nombra las funciones con un **verbo** y las variables con un **sustantivo**: `calcular_total()`, `pedir_cantidad()`, `mostrar_menu()`, pero `total`, `cantidad`, `menu`. Si no encuentras un verbo claro para una función, probablemente hace demasiadas cosas a la vez.
+:::
+
+## Retos
+
+::: {.callout-note .reto-basico title="Reto 6.1 · Básico · autocorregible"}
+Escribe la función `calcular_vuelto(total, pago)` que devuelva el vuelto redondeado a dos decimales. Debe pasar estas pruebas:
+
+```python
+assert calcular_vuelto(37.5, 50) == 12.5
+assert calcular_vuelto(20, 20) == 0
+```
+:::
+
+::: {.callout-note .reto-intermedio title="Reto 6.2 · Intermedio · autocorregible"}
+Escribe la función `es_bisiesto(anio)` que devuelva `True` o `False`. Un año es bisiesto si es divisible entre 4, salvo que sea divisible entre 100; pero sí lo es si es divisible entre 400. Escribe tú mismo al menos cinco `assert`, incluyendo 1900, 2000 y 2024.
+:::
+
+::: {.callout-note .reto-desafio title="Reto 6.3 · Desafío"}
+Escribe `pedir_entero(mensaje, minimo)`: una función que pida un número con el `mensaje` indicado y vuelva a preguntar mientras sea menor que `minimo` (usa el patrón de validación del capítulo 5). Úsala para pedir la cantidad y el número de clientes en dos programas distintos. ¿Por qué esta función no se puede probar fácilmente con `assert`?
+:::
+
+::: {.callout-important .ia title="IA con criterio"}
+**Pídele que revise tus nombres y tu división en funciones.** Cuando termines el avance de MiTienda:
+
+*«Este es mi programa dividido en funciones. Sin reescribirlo, dime qué función hace más de una cosa y qué nombres no explican bien lo que hacen.»*
+
+**Verifica la respuesta:** no aceptes un cambio solo porque «suena profesional». Por cada sugerencia, pregúntate si el código queda más fácil de leer **para ti** y si las pruebas siguen pasando después del cambio.
+:::
+
+## Avance de MiTienda (v0.6)
+
+El programa es el mismo de la versión 0.5, pero ordenado. Las funciones de cálculo están arriba, con sus pruebas, y el programa principal queda corto y legible:
+
+```python
+# MiTienda v0.6: el código ordenado en funciones
+
+def calcular_descuento(subtotal):
+    """Porcentaje de descuento según el subtotal de la compra."""
+    if subtotal > 200:
+        return 10
+    elif subtotal > 100:
+        return 5
+    return 0
+
+def aplicar_descuento(subtotal, porcentaje):
+    """Subtotal con el descuento aplicado, redondeado a 2 decimales."""
+    return round(subtotal * (1 - porcentaje / 100), 2)
+
+def mostrar_menu():
+    print("=== MiTienda ===")
+    print("1. Registrar venta")
+    print("2. Salir")
+
+def registrar_venta():
+    """Pide los productos de una venta y devuelve el total a pagar."""
+    subtotal = 0
+    nombre = input("Producto (vacío para cerrar la venta): ")
+    while nombre != "":
+        precio = float(input("Precio unitario: "))
+        cantidad = int(input("Cantidad: "))
+        subtotal += precio * cantidad
+        nombre = input("Producto (vacío para cerrar la venta): ")
+    porcentaje = calcular_descuento(subtotal)
+    total = aplicar_descuento(subtotal, porcentaje)
+    print(f"Subtotal: {subtotal:.2f}  Descuento: {porcentaje} %")
+    print(f"Total a pagar: {total:.2f}")
+    return total
+
+# Pruebas de las funciones de cálculo
+assert calcular_descuento(100) == 0
+assert calcular_descuento(200) == 5
+assert aplicar_descuento(140, 5) == 133.0
+
+# Programa principal
+ventas_del_dia = 0
+total_del_dia = 0
+while True:
+    mostrar_menu()
+    opcion = input("Elige una opción: ")
+    if opcion == "1":
+        total_del_dia += registrar_venta()
+        ventas_del_dia += 1
+    elif opcion == "2":
+        break
+    else:
+        print("Opción no válida")
+print(f"Ventas del día: {ventas_del_dia}. Total: {total_del_dia:.2f}")
+```
+
+```{.text .salida}
+=== MiTienda ===
+1. Registrar venta
+2. Salir
+Elige una opción: 1
+Producto (vacío para cerrar la venta): Leche
+Precio unitario: 6
+Cantidad: 2
+Producto (vacío para cerrar la venta):
+Subtotal: 12.00  Descuento: 0 %
+Total a pagar: 12.00
+=== MiTienda ===
+1. Registrar venta
+2. Salir
+Elige una opción: 2
+Ventas del día: 1. Total: 12.00
+```
+
+Vuelve al problema de inicio: si el descuento del 5 % ahora empieza en 150, cambias una sola línea de `calcular_descuento`, actualizas su prueba y listo. Ese es el beneficio de ordenar el código.
+
+Hay una molestia que sigue ahí: cada vez hay que escribir el precio del pan a mano. En el capítulo 7 MiTienda va a tener un catálogo de productos con sus precios.
+
+::: {.callout-note .resumen title="Resumen"}
+- `def` define una función; el código se ejecuta solo cuando la llamas con paréntesis.
+- Los parámetros reciben los argumentos en orden; las variables de la función son locales.
+- `return` termina la función y entrega un valor. Sin `return`, la función devuelve `None`.
+- Separa las funciones que calculan (con `return`) de las que conversan con el usuario.
+- `assert` convierte tus casos de prueba en comprobaciones automáticas.
+:::
+
+::: {.callout-note title="Código QR"}
+![](img/qr_pendiente.png){width=15%} Código y soluciones del capítulo 6
+:::

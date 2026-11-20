@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aprender Haciendo</title>
+<style>
+  :root { --navy:#1F3A5F; --teal:#2E7D6B; --amarillo:#F2C14E; --fondo:#F6F7F9; --texto:#1d2733; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:var(--fondo); color:var(--texto); }
+  header { background:var(--navy); color:#fff; padding:48px 16px 40px; text-align:center; }
+  header h1 { margin:0 0 8px; font-size:2.2rem; }
+  header p { margin:0; opacity:.85; }
+  main { max-width:960px; margin:0 auto; padding:32px 16px 48px; display:grid; gap:24px; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); }
+  .libro { background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.08); display:flex; flex-direction:column; }
+  .libro img { width:100%; aspect-ratio: 1240/1754; object-fit:cover; display:block; }
+  .libro div { padding:16px 18px 20px; }
+  .libro h2 { margin:0 0 4px; font-size:1.2rem; color:var(--navy); }
+  .libro p { margin:0 0 14px; font-size:.95rem; }
+  .botones a { display:inline-block; margin-right:8px; padding:8px 14px; border-radius:6px; text-decoration:none; font-weight:600; }
+  .web { background:var(--teal); color:#fff; }
+  .pdf { border:1.5px solid var(--teal); color:var(--teal); }
+  footer { text-align:center; font-size:.85rem; padding:0 16px 32px; color:#5a6573; }
+  footer a { color:var(--teal); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Aprender Haciendo</h1>
+  <p>Dos manuales prácticos de programación, con un proyecto que crece de libro en libro.</p>
+</header>
+<main>
+  <article class="libro">
+    <img src="img/portada-libro1.png" alt="Portada de Programar desde cero">
+    <div>
+      <h2>1. Programar desde cero</h2>
+      <p>Lógica y Python con retos guiados, para los primeros semestres.</p>
+      <p class="botones"><a class="web" href="libro1/">Leer en la web</a><a class="pdf" href="libro1/Programar-desde-cero.pdf">PDF</a></p>
+    </div>
+  </article>
+  <article class="libro">
+    <img src="img/portada-libro2.png" alt="Portada de Del programa al producto">
+    <div>
+      <h2>2. Del programa al producto</h2>
+      <p>Desarrollo de software en equipo, paso a paso: Git, Scrum, pruebas, SQLite e integración continua.</p>
+      <p class="botones"><a class="web" href="libro2/">Leer en la web</a><a class="pdf" href="libro2/Del-programa-al-producto.pdf">PDF</a></p>
+    </div>
+  </article>
+</main>
+<footer>
+  Ignacio Zárate · Texto con licencia CC BY-NC-SA 4.0 ·
+  <a href="https://github.com/IgnacioZDev7/aprender-haciendo">Código y fuentes en GitHub</a>
+</footer>
+</body>
+</html>

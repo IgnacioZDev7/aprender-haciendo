@@ -1,0 +1,21 @@
+# Antes de empezar {.unnumbered}
+
+Si llegaste hasta aquí, ya sabes programar. Sabes usar variables, decisiones, bucles, funciones y archivos, y probablemente terminaste algún proyecto de materia que funcionaba «en tu máquina». Este libro trata de lo que viene después: convertir un programa que funciona en un **producto** que otras personas pueden usar, mantener y mejorar.
+
+Como ayudante de cátedra vi muchas veces el mismo final de semestre: un grupo de cuatro personas en el que una sola escribe casi todo el código la noche antes de la entrega; archivos que circulan por chat con nombres como `final_v3_ahora_si.py`; un programa que funciona hasta que el docente prueba un caso que nadie había pensado. No es falta de talento. Es que a nadie le enseñaron a trabajar de otra manera.
+
+La investigación confirma que no es un problema aislado. Radermacher y Walia (2013) hicieron una revisión sistemática de estudios sobre lo que la industria espera de los recién egresados de carreras de computación y encontraron brechas justamente en estas áreas: diseño, pruebas, gestión de la configuración (que incluye el control de versiones), comunicación y trabajo en equipo. Son habilidades que se aprenden practicando, y que rara vez se practican en las materias de programación.
+
+## Lo que encontrarás aquí
+
+- **El mismo proyecto del Libro 1.** MiTienda, el programa de consola que construiste en *Programar desde cero*, es el punto de partida. No aprendes ingeniería de software con ejemplos sueltos, sino sobre un código que ya entiendes.
+- **Una práctica por capítulo** que deja a MiTienda un paso más cerca de ser un producto: repositorio, requisitos, tablero de tareas, pruebas, base de datos y publicación.
+- **Errores que vi en proyectos de estudiantes**, con su causa y cómo evitarlos.
+- **Retos por niveles** y **plantillas** listas para usar en los proyectos de tus otras materias.
+- **IA con criterio**, ahora aplicada al desarrollo: cómo usar asistentes de IA para escribir, revisar y probar código sin perder el control de lo que entregas.
+
+::: {.callout-caution .nota title="Sobre el uso de inteligencia artificial en este libro"}
+Este libro se escribió con apoyo de asistentes de IA para preparar borradores, revisar la redacción y detectar errores. Todo el contenido fue revisado, probado y adaptado por el autor; los comandos y programas se ejecutaron antes de incluirse.
+:::
+
+Ignacio Zárate

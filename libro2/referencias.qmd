@@ -1,0 +1,31 @@
+# Referencias {.unnumbered}
+
+Anderson, D. J. (2010). *Kanban: Successful evolutionary change for your technology business*. Blue Hole Press.
+
+Bacchelli, A., y Bird, C. (2013). Expectations, outcomes, and challenges of modern code review. En *2013 35th International Conference on Software Engineering (ICSE)* (pp. 712–721). IEEE. https://doi.org/10.1109/ICSE.2013.6606617
+
+Beck, K. (2003). *Test-driven development: By example*. Addison-Wesley.
+
+Beck, K., Beedle, M., van Bennekum, A., Cockburn, A., Cunningham, W., Fowler, M., Grenning, J., Highsmith, J., Hunt, A., Jeffries, R., Kern, J., Marick, B., Martin, R. C., Mellor, S., Schwaber, K., Sutherland, J., y Thomas, D. (2001). *Manifiesto por el desarrollo ágil de software*. https://agilemanifesto.org/iso/es/manifesto.html
+
+Chacon, S., y Straub, B. (2014). *Pro Git* (2.ª ed.). Apress. https://git-scm.com/book/es/v2
+
+Cohn, M. (2004). *User stories applied: For agile software development*. Addison-Wesley.
+
+Fowler, M. (2018). *Refactoring: Improving the design of existing code* (2.ª ed.). Addison-Wesley.
+
+GitHub. (s. f.). *Acerca de los pull requests*. GitHub Docs. Recuperado el 23 de octubre de 2026, de https://docs.github.com/es/pull-requests/get-started/about-pull-requests
+
+Martin, R. C. (2008). *Clean code: A handbook of agile software craftsmanship*. Prentice Hall.
+
+Preston-Werner, T. (s. f.). *Versionado semántico 2.0.0*. Recuperado el 16 de noviembre de 2026, de https://semver.org/lang/es/
+
+Python Software Foundation. (s. f.). *sqlite3 — DB-API 2.0 interfaz para bases de datos SQLite* (versión 3.15). Recuperado el 16 de noviembre de 2026, de https://docs.python.org/es/3/library/sqlite3.html
+
+Radermacher, A., y Walia, G. (2013). Gaps between industry expectations and the abilities of graduates. En *Proceedings of the 44th ACM Technical Symposium on Computer Science Education* (pp. 525–530). ACM. https://doi.org/10.1145/2445196.2445351
+
+Schwaber, K., y Sutherland, J. (2020). *La guía definitiva de Scrum: Las reglas del juego*. https://scrumguides.org/docs/scrumguide/v2020/2020-Scrum-Guide-Spanish-Latin-South-American.pdf
+
+Sommerville, I. (2011). *Ingeniería de software* (9.ª ed.). Pearson Educación.
+
+van Rossum, G., Warsaw, B., y Coghlan, A. (2001). *PEP 8 – Style guide for Python code*. Python Software Foundation. https://peps.python.org/pep-0008/

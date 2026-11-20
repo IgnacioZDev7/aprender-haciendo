@@ -5,7 +5,7 @@ project:
 book:
   title: "Programar desde cero"
   subtitle: "Lógica y Python con retos guiados"
-  author: "Ignacio Zárate"
+  author: "Ignacio Zarate"
   date: last-modified
   date-format: "MMMM YYYY"
   language: es

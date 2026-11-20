@@ -3,7 +3,7 @@
 [![Pruebas de MiTienda](https://github.com/IgnacioZDev7/aprender-haciendo/actions/workflows/pruebas.yml/badge.svg)](https://github.com/IgnacioZDev7/aprender-haciendo/actions/workflows/pruebas.yml)
 [![Publicar los libros](https://github.com/IgnacioZDev7/aprender-haciendo/actions/workflows/publicar-libros.yml/badge.svg)](https://github.com/IgnacioZDev7/aprender-haciendo/actions/workflows/publicar-libros.yml)
 
-Serie de dos manuales prácticos de programación para estudiantes universitarios, escrita por Ignacio Zárate a partir de su experiencia como ayudante de cátedra.
+Serie de dos manuales prácticos de programación para estudiantes universitarios, escrita por Ignacio Zarate a partir de su experiencia como ayudante de cátedra.
 
 | Libro | Para quién | Leer |
 |---|---|---|

@@ -21,4 +21,4 @@ La investigación también explica parte del porqué. Robins et al. (2003) obser
 Este libro se escribió con apoyo de asistentes de IA para preparar borradores, revisar la redacción y detectar errores en el código. Todo el contenido fue revisado, probado y adaptado por el autor, y cada ejemplo de código se ejecutó antes de incluirse. Declaro este uso por la misma razón por la que te pido que declares el tuyo: la honestidad sobre cómo se produce un trabajo es parte del trabajo.
 :::
 
-Ignacio Zárate
+Ignacio Zarate
